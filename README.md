@@ -34,3 +34,7 @@ Please file feedback and issues over on the [SupaVlog GitHub repo](https://githu
 - [Supabase storage docs](https://supabase.com/docs/guides/storage?ref=github-supavlog)
 - [Stream video & audio docs](https://getstream.io/video/docs/?ref=github-supavlog)
 - [Hookdeck docs](https://hookdeck.com?ref=github-supavlog)
+
+# Attribution
+
+- <a href="https://www.svgrepo.com/svg/458427/video" title="video icons">SVG video vector - SVG Repo</a>

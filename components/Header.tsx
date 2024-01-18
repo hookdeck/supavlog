@@ -2,18 +2,32 @@ import HookdeckLogo from "./logos/HookdeckLogo";
 import NextLogo from "./logos/NextLogo";
 import StreamLogo from "./logos/StreamLogo";
 import SupabaseLogo from "./logos/SupabaseLogo";
+import Image from "next/image";
 
 export default function Header() {
   return (
     <div className="flex flex-col gap-16 items-center">
-      <h1 className="sr-only">Supabase and Next.js Starter Template</h1>
+      <h1 className="sr-only">
+        SupaVlog - Open Source Micro Vlogging Application
+      </h1>
       <p className="text-3xl lg:text-4xl !leading-tight mx-auto max-w-xl text-center">
         Open Source
         <br />
-        <span className="font-bold hover:underline">
-          Micro Vlogging Application
+        <span className="font-bold">
+          Micro{" "}
+          <span title="Video Blogging" className="cursor-help">
+            Vlogging
+          </span>{" "}
+          Application
         </span>
       </p>
+      <Image
+        src="/images/supavlog-capture.png"
+        width={800}
+        height={600}
+        alt="Supavlog capture"
+        className="rounded-md shadow-xl"
+      />
       <div className="flex gap-8 justify-center items-center">
         Built with{" "}
         <a

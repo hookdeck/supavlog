@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChangeEventHandler, useState } from "react";
 import {
   Call,
-  CallControls,
   CallingState,
+  RecordCallButton,
   SpeakerLayout,
+  SpeakingWhileMutedNotification,
   StreamCall,
   StreamTheme,
   StreamVideo,
   StreamVideoClient,
+  ToggleAudioPublishingButton,
+  ToggleVideoPublishingButton,
+  useCall,
   useCallStateHooks,
   User,
 } from "@stream-io/video-react-sdk";
@@ -41,7 +45,18 @@ export default function RecordVideo({
   });
 
   const [call, setCall] = useState<Call>();
+  const [title, setTitle] = useState<string>("");
   const [callId, setCallId] = useState<string>("");
+
+  const handleTitleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const title = e.target.value;
+    setTitle(title);
+    const callId = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]/g, "-");
+    setCallId(callId);
+  };
 
   const startCall = () => {
     if (call) {
@@ -50,9 +65,18 @@ export default function RecordVideo({
     }
 
     const myCall = client.call("default", callId);
-    myCall.join({ create: true }).catch((err) => {
-      console.error(`Failed to join the call`, err);
-    });
+    myCall
+      .join({
+        create: true,
+        data: {
+          custom: {
+            title,
+          },
+        },
+      })
+      .catch((err) => {
+        console.error(`Failed to join the call`, err);
+      });
 
     setCall(myCall);
   };
@@ -62,37 +86,51 @@ export default function RecordVideo({
       console.warn("Call not started or already ended");
       return;
     }
+
+    call.stopRecording().catch((err) => {
+      console.warn(`Failed to stop recording`, err);
+    });
+
     call.leave().catch((err) => {
       console.error(`Failed to leave the call`, err);
     });
+
     call.endCall().catch((err) => {
       console.error(`Failed to end the call`, err);
     });
+
     setCall(undefined);
+    setCallId("");
+    setTitle("");
   };
 
   if (call) {
     return (
-      <>
-        <h2>{callId}</h2>
+      <div className="animate-in flex flex-col gap-4">
+        <h2>{title.trim()}</h2>
         <StreamVideo client={client}>
           <StreamCall call={call}>
             <UILayout onLeave={endCall} />
           </StreamCall>
         </StreamVideo>
-      </>
+      </div>
     );
   } else {
     return (
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-col gap-4 items-center min-h-[400px]">
         <input
           type="text"
-          placeholder="Call ID"
-          onChange={(e) => setCallId(e.target.value)}
-          value={callId}
-          className="text-black"
+          placeholder="Vlog title"
+          onChange={handleTitleChange}
+          value={title}
+          className="text-black w-[400px] border-rounded rounded-md p-4"
         />
-        {callId.length > 3 && <Button onClick={startCall}>Start Call</Button>}
+        <Button
+          onClick={startCall}
+          className={callId.length < 3 ? "invisible" : "visible"}
+        >
+          Start Video
+        </Button>
       </div>
     );
   }
@@ -100,20 +138,49 @@ export default function RecordVideo({
 
 export const UILayout = ({ onLeave }: { onLeave: () => void }) => {
   const { useCallCallingState } = useCallStateHooks();
-  const callingState = useCallCallingState();
+  const callingState: CallingState = useCallCallingState();
   if (
     callingState !== CallingState.JOINED &&
     callingState !== CallingState.LEFT
   ) {
     return <div>Loading...</div>;
   } else if (callingState === CallingState.LEFT) {
+    onLeave();
     return <div>Call has ended</div>;
   }
 
   return (
     <StreamTheme>
       <SpeakerLayout participantsBarPosition="bottom" />
-      <CallControls onLeave={onLeave} />
+      <div className="str-video__call-controls">
+        <RecordCallButton />
+        <SpeakingWhileMutedNotification>
+          <ToggleAudioPublishingButton />
+        </SpeakingWhileMutedNotification>
+        <ToggleVideoPublishingButton />
+        <CustomCancelCallButton />
+      </div>
     </StreamTheme>
+  );
+};
+
+type CustomCancelCallButtonProps = {
+  reject?: boolean;
+};
+
+export const CustomCancelCallButton = ({
+  reject,
+}: CustomCancelCallButtonProps) => {
+  const call = useCall();
+  return (
+    <div className="str-video__composite-button">
+      <Button
+        onClick={() => call?.leave({ reject })}
+        className="h-[38px] text-center text-white text-xl"
+      >
+        ⬜️
+      </Button>
+      <div className="str-video__composite-button__caption">Stop</div>
+    </div>
   );
 };

@@ -27,8 +27,8 @@ export default async function RecordNew() {
           🎥 Record a new video{" "}
         </LinkButton>
       </div>
-      <div className="flex-1 flex flex-col w-full justify-center gap-4">
-        <h2 className="text-xl">Existing recordings</h2>
+      <div className="flex-1 flex flex-col w-full justify-center gap-10">
+        <h2 className="text-2xl">Existing recordings</h2>
         <RecordingsList userId={user.id} />
       </div>
     </div>
