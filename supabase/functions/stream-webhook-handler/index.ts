@@ -65,6 +65,9 @@ Deno.serve(async (req) => {
     const buffer = await download.arrayBuffer();
     await uploadFile(streamFilename, buffer);
 
+    // TODO: store the video details in the DB with associated user
+    // so that videos for a user can be queried.
+
     return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" },
       status: 201,
