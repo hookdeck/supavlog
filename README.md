@@ -24,6 +24,14 @@ TODO
 
 TODO
 
+### Supabase functions
+
+To run locally using the `.env.local` values run:
+
+```
+npm run supabase-functions
+```
+
 ## Feedback and issues
 
 Please file feedback and issues over on the [SupaVlog GitHub repo](https://github.com/hookdeck/supavlog/issues/new/choose).
