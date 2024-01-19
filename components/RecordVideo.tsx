@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, useEffect, useState } from "react";
 import {
   Call,
   CallingState,
@@ -38,23 +38,38 @@ export default function RecordVideo({
     image: `https://getstream.io/random_svg/?id=${userId}}&name=${userName}`,
   };
 
-  const client = new StreamVideoClient({
-    apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
-    user,
-    token,
-  });
-
+  const [client, setVideoClient] = useState<StreamVideoClient>();
   const [call, setCall] = useState<Call>();
   const [title, setTitle] = useState<string>("");
   const [callId, setCallId] = useState<string>("");
 
+  useEffect(() => {
+    const _client = new StreamVideoClient({
+      apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
+      user,
+      token,
+    });
+    setVideoClient(_client);
+
+    return () => {
+      _client
+        .disconnectUser()
+        .catch((e) => console.error(`Couldn't disconnect user`, e));
+      setVideoClient(undefined);
+    };
+  }, []);
+
+  if (!client) {
+    return <div>Loading...</div>;
+  }
+
   const handleTitleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const title = e.target.value;
     setTitle(title);
-    const callId = title
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]/g, "-");
+    // Reuse the same call for a user for the time being. This means that all recordings
+    // will be associated with the same call. This is fine for now, but we may want to
+    // change this in the future.
+    const callId = "call_" + userId;
     setCallId(callId);
   };
 

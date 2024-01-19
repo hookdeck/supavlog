@@ -1,11 +1,8 @@
-import Link from "next/link";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import RecordVideo from "@/components/RecordVideo";
 import { StreamClient } from "@stream-io/node-sdk";
-import { useCallback, useState } from "react";
-import { CallRecording, useCall } from "@stream-io/video-react-sdk";
 import LinkButton from "@/components/LinkButton";
 
 const serverClient = new StreamClient(
@@ -37,7 +34,11 @@ export default async function RecordNew() {
       </div>
       <div className="flex-1 flex flex-col w-full gap-2 justify-center items-center">
         <h2 className="text-xl">Record a new video</h2>
-        <RecordVideo userId={user.id} userName={user.email!} token={token} />
+        <RecordVideo
+          userId={user.id}
+          userName={user.user_metadata.username}
+          token={token}
+        />
       </div>
     </div>
   );

@@ -14,6 +14,9 @@ interface Callrecording {
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const VIDEO_BUCKET = "videos";
+const VIDEO_TABLE = "videos";
+
 // Create Supabase client
 const supabase = createClient(
   Deno.env.get("NEXT_PUBLIC_SUPABASE_URL"),
@@ -22,12 +25,12 @@ const supabase = createClient(
 
 // Upload file using standard upload
 async function uploadFile(filePath: string, file: ArrayBuffer) {
-  const { data, error } = await supabase.storage
-    .from("videos")
+  const result = await supabase.storage
+    .from(VIDEO_BUCKET)
     .upload(filePath, file);
-  if (error) {
-    console.error(error);
-    throw error;
+  if (result.error) {
+    console.error(result.error);
+    throw result.error;
   }
 }
 
@@ -48,32 +51,68 @@ Deno.serve(async (req) => {
   }
   console.log("processing webook", { body });
 
-  const streamUrl = decodeURI(body.call_recording.url);
-  console.log("requesting stream url", streamUrl);
-  const streamFilename = body.call_recording.filename;
-
-  const download = await fetch(streamUrl);
-  console.log("Downloaded video");
-  if (download.status !== 200) {
-    return new Response(JSON.stringify({ success: false }), {
-      headers: { "Content-Type": "application/json" },
-      status: download.status,
-    });
-  }
-
   try {
-    const buffer = await download.arrayBuffer();
-    await uploadFile(streamFilename, buffer);
+    const streamUrl = decodeURI(body.call_recording.url);
+    console.log("requesting stream url", streamUrl);
+    const streamFilename = body.call_recording.filename;
 
-    // TODO: store the video details in the DB with associated user
-    // so that videos for a user can be queried.
+    const download = await fetch(streamUrl);
+    console.log("Downloaded video");
+    if (download.status !== 200) {
+      console.error(
+        "Error downloading video",
+        download.status,
+        download.statusText
+      );
+      throw new Error("Error downloading video");
+    }
+
+    // Having to pass the userID in the call ID because the webhook payload
+    // doesn't presently include any way to identify the user who created the recording.
+    // TODO: remove this in future as the payload should include something to identify the user.
+    const userId = body.call_cid.replace("default:call_", "");
+    const uploadFilePath = `${userId}/${streamFilename.replace(
+      userId,
+      "" + Date.now()
+    )}`;
+
+    console.log("Uploading video to", uploadFilePath, "for user", userId);
+
+    const buffer = await download.arrayBuffer();
+    await uploadFile(uploadFilePath, buffer);
+
+    const storageResult = supabase.storage
+      .from(VIDEO_BUCKET)
+      .getPublicUrl(uploadFilePath);
+
+    if (storageResult.error) {
+      console.error("Error getting public URL for video", storageResult.error);
+      throw new Error("Error getting public URL for video");
+    }
+    const publicUrl = storageResult.data.publicUrl;
+    console.log("Supabase public video URL", publicUrl);
+
+    // TODO: see above comment on the user ID. We also don't presently
+    // get the call title so can't add this here yet. Update when that
+    // info becomes available via the webhook payload.
+    const videoInsertResult = await supabase.from(VIDEO_TABLE).insert({
+      user_id: userId,
+      title: "",
+      description: "",
+      url: publicUrl,
+    });
+
+    if (videoInsertResult.error) {
+      console.error("Error adding video to database", videoInsertResult.error);
+      throw new Error("Error adding video to database");
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" },
       status: 201,
     });
   } catch (e) {
-    console.error(e);
+    console.error("Catch all in webhook handler", e);
     return new Response(JSON.stringify({ success: false }), {
       headers: { "Content-Type": "application/json" },
       status: 500,
