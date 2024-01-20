@@ -5,6 +5,7 @@ import {
   Call,
   CallingState,
   RecordCallButton,
+  ScreenShareButton,
   SpeakerLayout,
   SpeakingWhileMutedNotification,
   StreamCall,
@@ -173,6 +174,7 @@ export const UILayout = ({ onLeave }: { onLeave: () => void }) => {
           <ToggleAudioPublishingButton />
         </SpeakingWhileMutedNotification>
         <ToggleVideoPublishingButton />
+        <ScreenShareButton />
         <CustomCancelCallButton />
       </div>
     </StreamTheme>
