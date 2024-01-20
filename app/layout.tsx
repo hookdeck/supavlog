@@ -43,7 +43,9 @@ export default function RootLayout({
           <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
             <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm">
               <span className="text-2xl">
-                <Link href="/">SupaVlog</Link>
+                <Link as="a" href="/">
+                  SupaVlog
+                </Link>
               </span>
               {isSupabaseConnected && <AuthButton />}
             </div>

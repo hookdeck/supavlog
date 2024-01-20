@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import RecordVideo from "@/components/RecordVideo";
+import RecordVlog from "@/components/RecordVlog";
 import { StreamClient } from "@stream-io/node-sdk";
 import LinkButton from "@/components/LinkButton";
 
@@ -33,8 +33,8 @@ export default async function RecordNew() {
         </LinkButton>
       </div>
       <div className="flex-1 flex flex-col w-full gap-2 justify-center items-center">
-        <h2 className="text-xl">Record a new video</h2>
-        <RecordVideo
+        <h2 className="text-xl">Record a new Vlog</h2>
+        <RecordVlog
           userId={user.id}
           userName={user.user_metadata.username}
           token={token}

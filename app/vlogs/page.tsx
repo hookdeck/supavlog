@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import RecordingsList from "@/components/RecordingsList";
+import RecordingsList from "@/components/VlogList";
 import LinkButton from "@/components/LinkButton";
 
 export default async function RecordNew() {
@@ -23,13 +22,13 @@ export default async function RecordNew() {
         </LinkButton>
       </div>
       <div className="flex-1 flex flex-col w-full items-center">
-        <LinkButton arrow="right" href="/recordings/new">
-          🎥 Record a new video{" "}
+        <LinkButton arrow="right" href="/vlogs/new">
+          🎥 Record a new Vlog{" "}
         </LinkButton>
       </div>
       <div className="flex-1 flex flex-col w-full justify-center gap-10">
-        <h2 className="text-2xl">Existing recordings</h2>
-        <RecordingsList userId={user.id} />
+        <h2 className="text-2xl text-center">Vlogs</h2>
+        <RecordingsList />
       </div>
     </div>
   );

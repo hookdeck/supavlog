@@ -8,6 +8,7 @@ type DisplayedRecording = {
   filename: string;
   end_time: string;
   title: string;
+  by_username: string;
 };
 
 const serverClient = new StreamClient(
@@ -15,14 +16,20 @@ const serverClient = new StreamClient(
   process.env.STREAM_API_SECRET!
 );
 
-const getRecordingsFromStream = async (userId: string) => {
+const getRecordingsFromStream = async (userId?: string) => {
   let recordings: DisplayedRecording[] = [];
 
-  const response = await serverClient.video.queryCalls({
-    filter_conditions: {
-      created_by_user_id: { $eq: userId },
-    },
-  });
+  const response = await (async (_userId?: string) => {
+    if (_userId) {
+      return await serverClient.video.queryCalls({
+        filter_conditions: {
+          created_by_user_id: { $eq: _userId },
+        },
+      });
+    } else {
+      return await serverClient.video.queryCalls();
+    }
+  })(userId);
 
   const callReponses = response?.calls;
   for (let i = 0; i < callReponses?.length; ++i) {
@@ -35,6 +42,7 @@ const getRecordingsFromStream = async (userId: string) => {
         filename: recording.filename,
         end_time: recording.end_time,
         title: response.call.custom.title,
+        by_username: response.call.created_by.name!,
       }))
     );
   }
@@ -42,19 +50,26 @@ const getRecordingsFromStream = async (userId: string) => {
   return recordings;
 };
 
-const getRecordingsFromSupabase = async (userId: string) => {
+const getRecordingsFromSupabase = async (userId?: string) => {
   const cookieStore = cookies();
   const supabase = createClientUtil(cookieStore);
 
-  const { data, error } = await supabase
-    .from("videos")
-    .select("*")
-    .eq("user_id", userId);
+  const { data, error } = await (async (userId?: string) => {
+    const joinQuery = "url, created_at, title, profiles(username)";
+    if (userId) {
+      return await supabase
+        .from("videos")
+        .select(joinQuery)
+        .eq("user_id", userId);
+    } else {
+      return await supabase.from("videos").select(joinQuery);
+    }
+  })(userId);
 
   const recordings: DisplayedRecording[] = [];
   if (error) {
     // TODO: change the logic here to handle the error
-    console.error(error);
+    console.error("arg!", error);
     return recordings;
   }
 
@@ -64,13 +79,15 @@ const getRecordingsFromSupabase = async (userId: string) => {
       filename: video.url.substring(video.url.lastIndexOf("/") + 1),
       end_time: video.created_at,
       title: video.title,
+      //@ts-ignore (TODO: update type definitions)
+      by_username: video.profiles.username,
     });
   });
 
   return recordings;
 };
 
-export default async function RecordingsList({ userId }: { userId: string }) {
+export default async function RecordingsList({ userId }: { userId?: string }) {
   let recordings = await getRecordingsFromStream(userId);
   // let recordings = await getRecordingsFromSupabase(userId);
 
@@ -118,9 +135,12 @@ export default async function RecordingsList({ userId }: { userId: string }) {
                   width={100}
                   height={100}
                 />
-                <span className="text-xs flex items-end h-[50px]">
-                  <span>{new Date(recording.end_time).toLocaleString()}</span>
-                </span>
+                <div className="h-[50px]">
+                  <h4 className="text-md">{recording.by_username}</h4>
+                  <span className="text-xs flex items-end">
+                    <span>{new Date(recording.end_time).toLocaleString()}</span>
+                  </span>
+                </div>
               </a>
             </li>
           ))}
