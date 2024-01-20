@@ -11,6 +11,9 @@ export async function middleware(request: NextRequest) {
     // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
     await supabase.auth.getSession();
 
+    response.headers.set("x-url", request.url);
+    response.headers.set("x-path", request.nextUrl.pathname);
+
     return response;
   } catch (e) {
     // If you are here, a Supabase client could not be created!

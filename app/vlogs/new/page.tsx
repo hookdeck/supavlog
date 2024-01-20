@@ -2,8 +2,8 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import RecordVlog from "@/components/RecordVlog";
-import LinkButton from "@/components/LinkButton";
 import { getClient } from "@/utils/stream/server";
+import NavSection from "@/components/NavSection";
 
 const serverClient = getClient();
 
@@ -24,11 +24,7 @@ export default async function RecordNew() {
 
   return (
     <div className="flex-1 flex flex-col w-full justify-center gap-10">
-      <div className="w-full gap-2">
-        <LinkButton arrow="left" href="/recordings">
-          Back
-        </LinkButton>
-      </div>
+      <NavSection />
       <div className="flex-1 flex flex-col w-full gap-2 justify-center items-center">
         <h2 className="text-xl">Record a new Vlog</h2>
         <RecordVlog

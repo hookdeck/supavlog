@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import RecordingsList from "@/components/VlogList";
 import LinkButton from "@/components/LinkButton";
 import { notFound } from "next/navigation";
+import NavSection from "@/components/NavSection";
 
 export default async function VlogByUsername({
   params,
@@ -25,14 +26,12 @@ export default async function VlogByUsername({
   }
 
   const userId = result.data[0].user_id;
+  const navOverride: Record<string, string> = {};
+  navOverride[`/vlogs/${params.username}`] = params.username;
 
   return (
     <div className="flex-1 flex flex-col w-full gap-10">
-      <div className="w-full">
-        <LinkButton arrow="left" href="/">
-          Home
-        </LinkButton>
-      </div>
+      <NavSection structureOverride={navOverride} />
       <div className="flex-1 flex flex-col w-full items-center">
         <LinkButton arrow="right" href="/vlogs/new">
           🎥 Record a new Vlog{" "}

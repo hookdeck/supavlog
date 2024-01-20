@@ -1,11 +1,11 @@
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
-import RecordingsList from "@/components/VlogList";
-import LinkButton from "@/components/LinkButton";
 import { notFound } from "next/navigation";
-import { VlogItem } from "@/types/DisplayedRecording";
+import { VlogItem } from "@/types/VlogItem";
 import { getClient } from "@/utils/stream/server";
 import RecordAVlogButtonSection from "@/components/RecordAVlogButtonSection";
+import NavSection from "@/components/NavSection";
+import Link from "next/link";
 
 const serverClient = getClient();
 
@@ -23,8 +23,6 @@ const getVlogFromStream = async (vlogId: string): Promise<VlogItem | null> => {
       id: { $eq: callId },
     },
   });
-
-  console.log(response);
 
   if (response.calls.length > 0) {
     const callReponses = response?.calls;
@@ -93,22 +91,36 @@ export default async function SingleVlog({
       ? await getVlogFromStream(params.vlog_id)
       : await getVlogFromSupabase(params.vlog_id);
 
+  const navOverride: Record<string, string> = {};
+  navOverride[`/vlogs/${vlog?.by_username}`] =
+    vlog?.by_username || "Unknown user";
+  navOverride[`/vlogs/${vlog?.by_username}/${vlog?.id}`] =
+    vlog?.title || "No title available";
+
   return (
     <div className="flex-1 flex flex-col w-full gap-10">
-      <div className="w-full">
-        <LinkButton arrow="left" href="/">
-          Home
-        </LinkButton>
-      </div>
+      <NavSection structureOverride={navOverride} />
       {!vlog ? (
         notFound()
       ) : (
         <>
           <RecordAVlogButtonSection />
           <div className="flex-1 flex flex-col w-full justify-center gap-10">
-            <h2 className="text-2xl text-center">
-              {vlog.title || "No title available"}
-            </h2>
+            <div className="flex flex-col gap-2">
+              <h2 className="text-2xl text-center">
+                {vlog.title || "No title available"}
+              </h2>
+              <h3 className="text-lg text-center">
+                By{" "}
+                {vlog.by_username ? (
+                  <Link href={`/vlogs/${vlog.by_username}`}>
+                    {vlog.by_username}
+                  </Link>
+                ) : (
+                  "Unknown user"
+                )}
+              </h3>
+            </div>
             <video controls>
               <source src={vlog.url} type="video/mp4" />
             </video>
