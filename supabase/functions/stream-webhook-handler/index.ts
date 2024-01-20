@@ -100,6 +100,7 @@ Deno.serve(async (req) => {
       title: "",
       description: "",
       url: publicUrl,
+      profile_user_id: userId,
     });
 
     if (videoInsertResult.error) {
