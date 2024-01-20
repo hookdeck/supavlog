@@ -70,7 +70,9 @@ Deno.serve(async (req) => {
     // Having to pass the userID in the call ID because the webhook payload
     // doesn't presently include any way to identify the user who created the recording.
     // TODO: remove this in future as the payload should include something to identify the user.
-    const userId = body.call_cid.replace("default:call_", "");
+    let userId = body.call_cid.replace("default:call_", "");
+    userId = userId.substring(0, userId.lastIndexOf("_"));
+
     const uploadFilePath = `${userId}/${streamFilename.replace(
       userId,
       "" + Date.now()

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { createClient as createSupabaseClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-import { VlogItem } from "@/types/DisplayedRecording";
+import { VlogItem } from "@/types/VlogItem";
 import { getClient } from "@/utils/stream/server";
 
 const serverClient = getClient();
@@ -51,7 +51,8 @@ const getRecordingsFromSupabase = async (userId?: string) => {
       return await supabase
         .from("videos")
         .select(joinQuery)
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
     } else {
       return await supabase.from("videos").select(joinQuery);
     }

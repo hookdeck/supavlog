@@ -42,7 +42,6 @@ export default function RecordVideo({
   const [client, setVideoClient] = useState<StreamVideoClient>();
   const [call, setCall] = useState<Call>();
   const [title, setTitle] = useState<string>("");
-  const [callId, setCallId] = useState<string>("");
 
   useEffect(() => {
     const _client = new StreamVideoClient({
@@ -67,11 +66,6 @@ export default function RecordVideo({
   const handleTitleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const title = e.target.value;
     setTitle(title);
-    // Reuse the same call for a user for the time being. This means that all recordings
-    // will be associated with the same call. This is fine for now, but we may want to
-    // change this in the future.
-    const callId = "call_" + userId;
-    setCallId(callId);
   };
 
   const startCall = () => {
@@ -80,7 +74,7 @@ export default function RecordVideo({
       return;
     }
 
-    const myCall = client.call("default", callId);
+    const myCall = client.call("default", "call_" + userId + "_" + Date.now());
     myCall
       .join({
         create: true,
@@ -116,7 +110,6 @@ export default function RecordVideo({
     });
 
     setCall(undefined);
-    setCallId("");
     setTitle("");
   };
 
@@ -143,7 +136,7 @@ export default function RecordVideo({
         />
         <Button
           onClick={startCall}
-          className={callId.length < 3 ? "invisible" : "visible"}
+          className={title.length < 3 ? "invisible" : "visible"}
         >
           Start Video
         </Button>
