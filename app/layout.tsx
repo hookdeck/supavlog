@@ -43,9 +43,7 @@ export default function RootLayout({
           <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
             <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm">
               <span className="text-2xl">
-                <Link as="a" href="/">
-                  SupaVlog
-                </Link>
+                <Link href="/">SupaVlog</Link>
               </span>
               {isSupabaseConnected && <AuthButton />}
             </div>
@@ -53,7 +51,7 @@ export default function RootLayout({
           <main className="w-full max-w-4xl flex justify-between">
             {children}
           </main>
-          <footer className="w-full border-t border-t-foreground/10 p-8 flex justify-center text-center text-xs">
+          <footer className="w-full border-t border-t-foreground/10 p-8 justify-center text-center text-xs">
             <p>
               Powered by{" "}
               <a
@@ -82,6 +80,10 @@ export default function RootLayout({
               >
                 Hookdeck
               </a>
+            </p>
+            <p>
+              Video storage configuration:{" "}
+              <code>{process.env.VIDEO_STORAGE_PLATFORM}</code>
             </p>
           </footer>
         </div>

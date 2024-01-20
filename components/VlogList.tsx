@@ -1,23 +1,13 @@
 import Image from "next/image";
-import { StreamClient } from "@stream-io/node-sdk";
-import { createClient as createClientUtil } from "@/utils/supabase/server";
+import { createClient as createSupabaseClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
+import { VlogItem } from "@/types/DisplayedRecording";
+import { getClient } from "@/utils/stream/server";
 
-type DisplayedRecording = {
-  url: string;
-  filename: string;
-  end_time: string;
-  title: string;
-  by_username: string;
-};
-
-const serverClient = new StreamClient(
-  process.env.NEXT_PUBLIC_STREAM_API_KEY!,
-  process.env.STREAM_API_SECRET!
-);
+const serverClient = getClient();
 
 const getRecordingsFromStream = async (userId?: string) => {
-  let recordings: DisplayedRecording[] = [];
+  let recordings: VlogItem[] = [];
 
   const response = await (async (_userId?: string) => {
     if (_userId) {
@@ -37,7 +27,8 @@ const getRecordingsFromStream = async (userId?: string) => {
     const call = serverClient.video.call("default", response.call.id);
     const recordingsResponse = await call.listRecordings();
     recordings = recordings.concat(
-      recordingsResponse.recordings.map((recording) => ({
+      recordingsResponse.recordings.map((recording, index) => ({
+        id: `${response.call.id}-${index}`, // index is used to identify the recording
         url: recording.url,
         filename: recording.filename,
         end_time: recording.end_time,
@@ -52,10 +43,10 @@ const getRecordingsFromStream = async (userId?: string) => {
 
 const getRecordingsFromSupabase = async (userId?: string) => {
   const cookieStore = cookies();
-  const supabase = createClientUtil(cookieStore);
+  const supabase = createSupabaseClient(cookieStore);
 
   const { data, error } = await (async (userId?: string) => {
-    const joinQuery = "url, created_at, title, profiles(username)";
+    const joinQuery = "id, url, created_at, title, profiles(username)";
     if (userId) {
       return await supabase
         .from("videos")
@@ -66,7 +57,7 @@ const getRecordingsFromSupabase = async (userId?: string) => {
     }
   })(userId);
 
-  const recordings: DisplayedRecording[] = [];
+  const recordings: VlogItem[] = [];
   if (error) {
     // TODO: change the logic here to handle the error
     console.error("arg!", error);
@@ -75,6 +66,7 @@ const getRecordingsFromSupabase = async (userId?: string) => {
 
   data.forEach((video) => {
     recordings.push({
+      id: video.id,
       url: video.url,
       filename: video.url.substring(video.url.lastIndexOf("/") + 1),
       end_time: video.created_at,
@@ -88,8 +80,10 @@ const getRecordingsFromSupabase = async (userId?: string) => {
 };
 
 export default async function RecordingsList({ userId }: { userId?: string }) {
-  let recordings = await getRecordingsFromStream(userId);
-  // let recordings = await getRecordingsFromSupabase(userId);
+  let recordings =
+    process.env.VIDEO_STORAGE_PLATFORM === "stream"
+      ? await getRecordingsFromStream(userId)
+      : await getRecordingsFromSupabase(userId);
 
   const MAX_TITLE_LENGTH = 60;
   const reduceTitle = (title: string) => {
@@ -116,9 +110,8 @@ export default async function RecordingsList({ userId }: { userId?: string }) {
             >
               <a
                 role="button"
-                href={recording.url}
-                download={recording.filename}
-                title="Download the recording"
+                href={`/vlogs/${recording.by_username}/${recording.id}`}
+                title={recording.title}
                 className="flex flex-col gap-4 items-center text-center"
               >
                 <h3

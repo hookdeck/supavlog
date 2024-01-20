@@ -2,13 +2,10 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import RecordVlog from "@/components/RecordVlog";
-import { StreamClient } from "@stream-io/node-sdk";
 import LinkButton from "@/components/LinkButton";
+import { getClient } from "@/utils/stream/server";
 
-const serverClient = new StreamClient(
-  process.env.NEXT_PUBLIC_STREAM_API_KEY!,
-  process.env.STREAM_API_SECRET!
-);
+const serverClient = getClient();
 
 export default async function RecordNew() {
   const cookieStore = cookies();

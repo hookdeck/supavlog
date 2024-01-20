@@ -11,13 +11,9 @@ export default async function VlogByUsername({
 }) {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
-
-  // if (!user) {
-  //   return redirect("/login");
-  // }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const result = await supabase
     .from("profiles")
@@ -43,7 +39,9 @@ export default async function VlogByUsername({
         </LinkButton>
       </div>
       <div className="flex-1 flex flex-col w-full justify-center gap-10">
-        <h2 className="text-2xl text-center">Vlogs by {params.username}</h2>
+        <h2 className="text-2xl text-center">
+          Vlogs by {params.username} {(user && user.id) === userId && "(you)"}
+        </h2>
         <RecordingsList userId={userId} />
       </div>
     </div>
