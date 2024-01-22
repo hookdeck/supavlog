@@ -23,8 +23,34 @@ export default async function Home() {
             Application
           </span>
         </p>
-        <span className="text-xl">
-          <Link href="/vlogs">Watch the Vlogs</Link>
+        <span className="text-base text-center flex flex-row gap-8">
+          <Link
+            href="/vlogs"
+            className="hover:underline flex flex-row items-center gap-1"
+          >
+            <Image
+              src="/icons/video.svg"
+              width={24}
+              height={24}
+              alt="Video icon"
+              className="invert"
+            />
+            Watch the Vlogs
+          </Link>
+          <span className="border border-solid border-slate-700"></span>
+          <Link
+            href="https://github.com/hookdeck/supavlog"
+            className="hover:underline flex flex-row items-center gap-1"
+          >
+            <Image
+              src="/icons/github.svg"
+              width={24}
+              height={24}
+              alt="GitHub logo"
+              className="invert"
+            />
+            Get the code on GitHub
+          </Link>
         </span>
         <Image
           src="/images/supavlog-capture.png"
