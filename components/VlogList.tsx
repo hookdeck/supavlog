@@ -30,6 +30,7 @@ const getRecordingsFromStream = async (userId?: string) => {
       recordingsResponse.recordings.map((recording, index) => ({
         id: `${response.call.id}-${index}`, // index is used to identify the recording
         url: recording.url,
+        thumbnail_url: response.call.thumbnails?.image_url,
         filename: recording.filename,
         end_time: recording.end_time,
         title: response.call.custom.title,
@@ -46,7 +47,8 @@ const getRecordingsFromSupabase = async (userId?: string) => {
   const supabase = createSupabaseClient(cookieStore);
 
   const { data, error } = await (async (userId?: string) => {
-    const joinQuery = "id, url, created_at, title, profiles(username)";
+    const joinQuery =
+      "id, url, thumbnail_url, created_at, title, profiles(username)";
     if (userId) {
       return await supabase
         .from("videos")
@@ -72,6 +74,7 @@ const getRecordingsFromSupabase = async (userId?: string) => {
     recordings.push({
       id: video.id,
       url: video.url,
+      thumbnail_url: video.thumbnail_url,
       filename: video.url
         ? video.url.substring(video.url.lastIndexOf("/") + 1)
         : null,
@@ -122,7 +125,14 @@ export default async function RecordingsList({ userId }: { userId?: string }) {
                     : "#"
                 }
                 title={recording.title}
-                className="flex flex-col gap-4 items-center text-center"
+                className="group flex flex-col gap-4 items-center text-center bg-cover bg-no-repeat bg-center rounded-md group-hover:0 relative"
+                style={
+                  recording.thumbnail_url
+                    ? {
+                        backgroundImage: `linear-gradient(rgba(79, 78, 79, 0.4), rgba(169, 168, 169, 0.4)), url(${recording.thumbnail_url})`,
+                      }
+                    : {}
+                }
               >
                 <h3
                   className="text-lg whitespace-pre-wrap h-[50px]"
@@ -132,18 +142,20 @@ export default async function RecordingsList({ userId }: { userId?: string }) {
                     ? reduceTitle(recording.title)
                     : "No title available"}
                 </h3>
-                {!recording.url ? (
-                  <div className="flex flex-col justify-center h-[100px]">
+                {!recording.url && (
+                  <div className="absolute flex flex-col justify-center h-full z-20">
                     <span>Video not available or still processing</span>
                   </div>
-                ) : (
+                )}
+                <div className="flex justify-center relative w-full h-[100px] z-1 group-hover:opacity-50">
                   <Image
-                    src="/icons/video.svg"
-                    alt={`Video image for ${recording.title}`}
+                    className="absolute z-10"
+                    src={"/icons/video.svg"}
+                    alt={`Pleaseholder video image for ${recording.title}`}
                     width={100}
                     height={100}
                   />
-                )}
+                </div>
 
                 <div className="h-[50px]">
                   <h4 className="text-md">{recording.by_username}</h4>

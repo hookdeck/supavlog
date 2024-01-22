@@ -8,6 +8,7 @@ create table
     url text null,
     profile_user_id uuid not null,
     call_id text null,
+    thumbnail_url text null,
     constraint videos_pkey primary key (id),
     constraint videos_profile_user_id_fkey foreign key (profile_user_id) references profiles (user_id),
     constraint videos_user_id_fkey foreign key (user_id) references auth.users (id)

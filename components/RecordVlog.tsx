@@ -23,7 +23,6 @@ import {
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import Button from "./Button";
 import { createClient } from "@/utils/supabase/client";
-import { createBrowserClient } from "@supabase/ssr";
 
 export default function RecordVideo({
   userId,
@@ -34,8 +33,6 @@ export default function RecordVideo({
   userName: string;
   token: string;
 }) {
-  // if (typeof window === "undefined") return;
-
   const streamUser: User = {
     id: userId,
     name: userName,
