@@ -259,13 +259,17 @@ export const CustomRecordCallButton = ({
   return (
     <div className="str-video__composite-button">
       {isAwaitingResponse ? (
-        <LoadingIndicator
-          tooltip={
-            isCallRecordingInProgress
-              ? "Waiting for recording to stop... "
-              : "Waiting for recording to start..."
-          }
-        />
+        <>
+          <Button>
+            <LoadingIndicator
+              tooltip={
+                isCallRecordingInProgress
+                  ? "Waiting for recording to stop... "
+                  : "Waiting for recording to start..."
+              }
+            />
+          </Button>
+        </>
       ) : (
         <>
           <Button
