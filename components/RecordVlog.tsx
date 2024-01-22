@@ -150,9 +150,10 @@ export default function RecordVideo({
         />
         <Button
           onClick={startCall}
-          className={title.length < 3 ? "invisible" : "visible"}
+          disabled={title.length < 3}
+          className="disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Start Video
+          Start Vlog
         </Button>
       </div>
     );
