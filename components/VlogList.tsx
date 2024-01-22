@@ -54,7 +54,10 @@ const getRecordingsFromSupabase = async (userId?: string) => {
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
     } else {
-      return await supabase.from("videos").select(joinQuery);
+      return await supabase
+        .from("videos")
+        .select(joinQuery)
+        .order("created_at", { ascending: false });
     }
   })(userId);
 
@@ -69,10 +72,12 @@ const getRecordingsFromSupabase = async (userId?: string) => {
     recordings.push({
       id: video.id,
       url: video.url,
-      filename: video.url.substring(video.url.lastIndexOf("/") + 1),
+      filename: video.url
+        ? video.url.substring(video.url.lastIndexOf("/") + 1)
+        : null,
       end_time: video.created_at,
       title: video.title,
-      //@ts-ignore (TODO: update type definitions)
+      //@ts-ignore (TODO: update type definitions to correct reflect result structure)
       by_username: video.profiles.username,
     });
   });
@@ -111,7 +116,11 @@ export default async function RecordingsList({ userId }: { userId?: string }) {
             >
               <a
                 role="button"
-                href={`/vlogs/${recording.by_username}/${recording.id}`}
+                href={
+                  recording.url
+                    ? `/vlogs/${recording.by_username}/${recording.id}`
+                    : "#"
+                }
                 title={recording.title}
                 className="flex flex-col gap-4 items-center text-center"
               >
@@ -123,12 +132,19 @@ export default async function RecordingsList({ userId }: { userId?: string }) {
                     ? reduceTitle(recording.title)
                     : "No title available"}
                 </h3>
-                <Image
-                  src="/icons/video.svg"
-                  alt={`Video image for ${recording.title}`}
-                  width={100}
-                  height={100}
-                />
+                {!recording.url ? (
+                  <div className="flex flex-col justify-center h-[100px]">
+                    <span>Video not available or still processing</span>
+                  </div>
+                ) : (
+                  <Image
+                    src="/icons/video.svg"
+                    alt={`Video image for ${recording.title}`}
+                    width={100}
+                    height={100}
+                  />
+                )}
+
                 <div className="h-[50px]">
                   <h4 className="text-md">{recording.by_username}</h4>
                   <span className="text-xs flex items-end">

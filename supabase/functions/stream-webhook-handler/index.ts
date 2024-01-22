@@ -67,11 +67,12 @@ Deno.serve(async (req) => {
       throw new Error("Error downloading video");
     }
 
+    const callId = body.call_cid.replace("default:", "");
     // Having to pass the userID in the call ID because the webhook payload
     // doesn't presently include any way to identify the user who created the recording.
     // TODO: remove this in future as the payload should include something to identify the user.
-    let userId = body.call_cid.replace("default:call_", "");
-    userId = userId.substring(0, userId.lastIndexOf("_"));
+    let userId = callId.replace("call_", "");
+    userId = userId.substring(0, callId.lastIndexOf("_"));
 
     const uploadFilePath = `${userId}/${streamFilename.replace(
       userId,
@@ -97,22 +98,50 @@ Deno.serve(async (req) => {
     // TODO: see above comment on the user ID. We also don't presently
     // get the call title so can't add this here yet. Update when that
     // info becomes available via the webhook payload.
-    const videoInsertResult = await supabase.from(VIDEO_TABLE).insert({
-      user_id: userId,
-      title: "",
-      description: "",
-      url: publicUrl,
-      profile_user_id: userId,
-    });
+
+    // Insert
+    // const videoInsertResult = await supabase.from(VIDEO_TABLE).insert({
+    //   user_id: userId,
+    //   title: "",
+    //   description: "",
+    //   url: publicUrl,
+    //   profile_user_id: userId,
+    // });
+
+    // Update
+    console.log("Updating video with call ID", callId);
+    const videoInsertResult = await supabase
+      .from(VIDEO_TABLE)
+      .update({
+        url: publicUrl,
+      })
+      .eq("call_id", callId);
+
+    console.log({ videoInsertResult });
 
     if (videoInsertResult.error) {
-      console.error("Error adding video to database", videoInsertResult.error);
-      throw new Error("Error adding video to database");
+      // Insert
+      // console.error("Error adding video to database", videoInsertResult.error);
+      // throw new Error("Error adding video to database");
+
+      // Update
+      console.error(
+        "Error updating video in database",
+        videoInsertResult.error
+      );
+      throw new Error("Error updating video in database");
     }
 
+    // Insert
+    // return new Response(JSON.stringify({ success: true }), {
+    //   headers: { "Content-Type": "application/json" },
+    //   status: 201,
+    // });
+
+    // Update
     return new Response(JSON.stringify({ success: true }), {
       headers: { "Content-Type": "application/json" },
-      status: 201,
+      status: 200,
     });
   } catch (e) {
     console.error("Catch all in webhook handler", e);

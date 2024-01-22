@@ -1,9 +1,10 @@
 "use client";
 
-import { ChangeEventHandler, useEffect, useState } from "react";
+import { ChangeEventHandler, useCallback, useEffect, useState } from "react";
 import {
   Call,
   CallingState,
+  LoadingIndicator,
   RecordCallButton,
   ScreenShareButton,
   SpeakerLayout,
@@ -21,6 +22,8 @@ import {
 
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import Button from "./Button";
+import { createClient } from "@/utils/supabase/client";
+import { createBrowserClient } from "@supabase/ssr";
 
 export default function RecordVideo({
   userId,
@@ -31,9 +34,9 @@ export default function RecordVideo({
   userName: string;
   token: string;
 }) {
-  if (typeof window === "undefined") return;
+  // if (typeof window === "undefined") return;
 
-  const user: User = {
+  const streamUser: User = {
     id: userId,
     name: userName,
     image: `https://getstream.io/random_svg/?id=${userId}}&name=${userName}`,
@@ -46,7 +49,7 @@ export default function RecordVideo({
   useEffect(() => {
     const _client = new StreamVideoClient({
       apiKey: process.env.NEXT_PUBLIC_STREAM_API_KEY!,
-      user,
+      user: streamUser,
       token,
     });
     setVideoClient(_client);
@@ -68,6 +71,23 @@ export default function RecordVideo({
     setTitle(title);
   };
 
+  const handleRecordingStopping = async () => {
+    const supabase = createClient();
+
+    // Ensure this has completed before ending the call.
+    // This ensures that the video exists within the DB before
+    // the call.recording_ready are triggered and received.
+    const { error } = await supabase.from("videos").insert({
+      user_id: streamUser.id, // uses same user_id as supabase
+      profile_user_id: streamUser.id,
+      title: title,
+      call_id: call!.id,
+    });
+    if (error) {
+      console.error(error);
+    }
+  };
+
   const startCall = () => {
     if (call) {
       console.warn("Call already started");
@@ -75,6 +95,25 @@ export default function RecordVideo({
     }
 
     const myCall = client.call("default", "call_" + userId + "_" + Date.now());
+
+    myCall.on("call.recording_stopped", async () => {
+      // Only allow one recording per call
+      // This is to work around a known issue with stream where
+      // the call.recording* events do not contain any information
+      // about the creator of the call.
+
+      myCall.leave().catch((err) => {
+        console.error(`Failed to leave the call`, err);
+      });
+
+      myCall.endCall().catch((err) => {
+        console.error(`Failed to end the call`, err);
+      });
+
+      setCall(undefined);
+      setTitle("");
+    });
+
     myCall
       .join({
         create: true,
@@ -91,35 +130,13 @@ export default function RecordVideo({
     setCall(myCall);
   };
 
-  const endCall = () => {
-    if (!call) {
-      console.warn("Call not started or already ended");
-      return;
-    }
-
-    call.stopRecording().catch((err) => {
-      console.warn(`Failed to stop recording`, err);
-    });
-
-    call.leave().catch((err) => {
-      console.error(`Failed to leave the call`, err);
-    });
-
-    call.endCall().catch((err) => {
-      console.error(`Failed to end the call`, err);
-    });
-
-    setCall(undefined);
-    setTitle("");
-  };
-
   if (call) {
     return (
       <div className="animate-in flex flex-col gap-4">
         <h2>{title.trim()}</h2>
         <StreamVideo client={client}>
           <StreamCall call={call}>
-            <UILayout onLeave={endCall} />
+            <UILayout onRecordingStopping={handleRecordingStopping} />
           </StreamCall>
         </StreamVideo>
       </div>
@@ -145,7 +162,11 @@ export default function RecordVideo({
   }
 }
 
-export const UILayout = ({ onLeave }: { onLeave: () => void }) => {
+export const UILayout = ({
+  onRecordingStopping,
+}: {
+  onRecordingStopping: RecordingStoppingHandler;
+}) => {
   const { useCallCallingState } = useCallStateHooks();
   const callingState: CallingState = useCallCallingState();
   if (
@@ -154,7 +175,6 @@ export const UILayout = ({ onLeave }: { onLeave: () => void }) => {
   ) {
     return <div>Loading...</div>;
   } else if (callingState === CallingState.LEFT) {
-    onLeave();
     return <div>Call has ended</div>;
   }
 
@@ -162,35 +182,107 @@ export const UILayout = ({ onLeave }: { onLeave: () => void }) => {
     <StreamTheme>
       <SpeakerLayout participantsBarPosition="bottom" />
       <div className="str-video__call-controls">
-        <RecordCallButton />
+        {/* <RecordCallButton /> */}
+        <CustomRecordCallButton
+          onRecordingStopping={async () => {
+            await onRecordingStopping();
+          }}
+        />
         <SpeakingWhileMutedNotification>
           <ToggleAudioPublishingButton />
         </SpeakingWhileMutedNotification>
         <ToggleVideoPublishingButton />
         <ScreenShareButton />
-        <CustomCancelCallButton />
+        {/* <CustomCancelCallButton /> */}
       </div>
     </StreamTheme>
   );
 };
 
-type CustomCancelCallButtonProps = {
-  reject?: boolean;
-};
+// Commented out due to the one call per recording restriction put
+// in place by call.recording_ready restriction.
+// type CustomCancelCallButtonProps = {
+//   reject?: boolean;
+// };
 
-export const CustomCancelCallButton = ({
-  reject,
-}: CustomCancelCallButtonProps) => {
+// export const CustomCancelCallButton = ({
+//   reject,
+// }: CustomCancelCallButtonProps) => {
+//   const call = useCall();
+//   return (
+//     <div className="str-video__composite-button">
+//       <Button
+//         onClick={() => call?.leave({ reject })}
+//         className="h-[38px] text-center text-white text-xl"
+//       >
+//         ⬜️
+//       </Button>
+//       <div className="str-video__composite-button__caption">Stop</div>
+//     </div>
+//   );
+// };
+
+type RecordingStoppingHandler = () => Promise<void>;
+
+export const CustomRecordCallButton = ({
+  onRecordingStopping,
+}: {
+  onRecordingStopping: RecordingStoppingHandler;
+}) => {
   const call = useCall();
+  const { useIsCallRecordingInProgress } = useCallStateHooks();
+
+  const isCallRecordingInProgress = useIsCallRecordingInProgress();
+  const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
+
+  useEffect(() => {
+    // we wait until call.recording_started/stopped event to flips the
+    // `isCallRecordingInProgress` state variable.
+    // Once the flip happens, we remove the loading indicator
+    setIsAwaitingResponse((isAwaiting) => {
+      if (isAwaiting) return false;
+      return isAwaiting;
+    });
+  }, [isCallRecordingInProgress]);
+
+  const toggleRecording = useCallback(async () => {
+    try {
+      setIsAwaitingResponse(true);
+      if (isCallRecordingInProgress) {
+        await onRecordingStopping();
+        await call?.stopRecording();
+      } else {
+        await call?.startRecording();
+      }
+    } catch (e) {
+      console.error(`Failed start recording`, e);
+    }
+  }, [call, isCallRecordingInProgress]);
+
   return (
     <div className="str-video__composite-button">
-      <Button
-        onClick={() => call?.leave({ reject })}
-        className="h-[38px] text-center text-white text-xl"
-      >
-        ⬜️
-      </Button>
-      <div className="str-video__composite-button__caption">Stop</div>
+      {isAwaitingResponse ? (
+        <LoadingIndicator
+          tooltip={
+            isCallRecordingInProgress
+              ? "Waiting for recording to stop... "
+              : "Waiting for recording to start..."
+          }
+        />
+      ) : (
+        <>
+          <Button
+            disabled={!call}
+            title="Record call"
+            onClick={toggleRecording}
+          >
+            {isCallRecordingInProgress ? <span>🔴</span> : <span>⚪</span>}
+          </Button>
+          <div className="str-video__composite-button__caption">
+            {isCallRecordingInProgress ? <span>Stop</span> : <span>Start</span>}
+          </div>
+        </>
+      )}
     </div>
   );
 };

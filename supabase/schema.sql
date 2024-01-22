@@ -5,8 +5,9 @@ create table
     created_at timestamp without time zone null default now(),
     title text not null,
     description text null,
-    url text not null,
+    url text null,
     profile_user_id uuid not null,
+    call_id text null,
     constraint videos_pkey primary key (id),
     constraint videos_profile_user_id_fkey foreign key (profile_user_id) references profiles (user_id),
     constraint videos_user_id_fkey foreign key (user_id) references auth.users (id)
@@ -27,6 +28,13 @@ CREATE POLICY "Enable delete for users based on user_id" ON "public"."videos"
 AS PERMISSIVE FOR DELETE
 TO public
 USING (auth.uid() = user_id)
+
+CREATE POLICY "Enable insert for users based on user_id"
+ON public.videos
+FOR INSERT 
+WITH CHECK (
+  auth.uid() = user_id
+);
 
 
 create table
