@@ -1,21 +1,9 @@
 "use client";
 
-import { SupabaseClient, createClient } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
 
-let _supabase: SupabaseClient | null = null;
-const getSupabaseClient = (): SupabaseClient => {
-  if (_supabase !== null) {
-    return _supabase;
-  }
-
-  _supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  return _supabase;
-};
+const supabase = createClient();
 
 enum AllowUsernameStatus {
   "allow",
@@ -38,16 +26,14 @@ export default function UsernameInput() {
       return;
     }
 
-    const supabase = getSupabaseClient();
     const result = await supabase
       .from("profiles")
       .select("*")
       .eq("username", username);
 
-    if (result.count && result.count > 0) {
+    if (result.data && result.data.length > 0) {
       setAllowUsernameStatus(AllowUsernameStatus.used);
-    } else if (result.count == null || result.count === 0) {
-      // TODO: work out the correct logic for the above condition
+    } else if (result.data == null || result.data.length === 0) {
       setAllowUsernameStatus(AllowUsernameStatus.allow);
     } else {
       console.error("Unexpected result from profiles table", result);
