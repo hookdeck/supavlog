@@ -11,9 +11,9 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "SupaVlog - Open Source Micro Vlogging Application",
+  title: "SupaVlog - Open Source Micro Vlogging Application Template",
   description:
-    "An Open Source Micro Vlogging (Video Blogging) Application - SupaVlog",
+    "An Open Source Micro Vlogging (Video Blogging) Application Template - SupaVlog",
 };
 
 export default function RootLayout({

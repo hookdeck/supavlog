@@ -10,7 +10,7 @@ export default async function Home() {
     <div className="animate-in flex-1 flex flex-col gap-20 opacity-0 max-w-4xl px-3">
       <div className="flex flex-col gap-16 items-center">
         <h1 className="sr-only">
-          SupaVlog - Open Source Micro Vlogging Application
+          SupaVlog - Open Source Micro Vlogging Application Template
         </h1>
         <p className="text-3xl lg:text-4xl !leading-tight mx-auto max-w-xl text-center">
           Open Source
@@ -20,7 +20,7 @@ export default async function Home() {
             <span title="Video Blogging" className="cursor-help">
               Vlogging
             </span>{" "}
-            Application
+            Application Template
           </span>
         </p>
         <span className="text-base text-center flex flex-row gap-8">
