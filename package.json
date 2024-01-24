@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "supabase-functions-nodemon": "nodemon --watch supabase --ext ts --exec \"npm run supabase-functions\"",
-    "supabase-functions": "supabase functions serve --env-file .env.local"
+    "supabase-functions": "supabase functions serve --env-file .env.local",
+    "hookdeck-local": "hookdeck listen 54321"
   },
   "dependencies": {
     "@stream-io/node-sdk": "^0.1.9",
