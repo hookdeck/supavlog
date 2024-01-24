@@ -22,15 +22,34 @@ TODO
 
 ## Clone and run locally
 
-TODO
-
 ### Supabase functions
 
-To run locally using the `.env.local` values run:
+To run locally you will need the [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started) installed.
+
+You can then run the functions using the values defined in `.env.local` by running:
 
 ```
 npm run supabase-functions
 ```
+
+### Hookdeck
+
+Create two connections within Hookdeck, both using the same [Source](https://hookdeck.com/docs/sources?ref=github-supavlog).
+
+![Hookdeck connections](docs/connection-overview.png)
+
+Use the Source URL as the Webhook URL in Stream:
+
+![Stream Webhook configuration](docs/stream-webhook-config.png)
+
+For each [Destination](https://hookdeck.com/docs/destinations?ref=github-supavlog) within the Connection, ensure that you configure your Destinations to use Bearer Token auth using your **local** `SUPABASE_ANON_KEY`as the bearer token.
+
+![Destination auth configuration for CLI](docs/cli-config.png)
+
+To set up the Hookdeck CLI to connect to Hookdeck and tunnel the events locally:
+
+- Install the [Hookdeck CLI](https://hookdeck.com/docs/cli?ref=github-supavlog)
+- Run `npm run hookdeck-local`
 
 ## Feedback and issues
 
