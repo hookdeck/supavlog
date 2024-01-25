@@ -129,7 +129,7 @@ export default function RecordVideo({
 
   if (call) {
     return (
-      <div className="animate-in flex flex-col gap-4">
+      <div className="animate-in flex flex-col gap-4 min-h-[400px]">
         <h2>{title.trim()}</h2>
         <StreamVideo client={client}>
           <StreamCall call={call}>
@@ -177,7 +177,7 @@ export const UILayout = ({
   }
 
   return (
-    <StreamTheme>
+    <StreamTheme className="flex flex-col min-w-[600px]">
       <SpeakerLayout participantsBarPosition="bottom" />
       <div className="str-video__call-controls">
         {/* <RecordCallButton /> */}
