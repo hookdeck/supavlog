@@ -16,12 +16,11 @@ export default async function Home() {
           Open Source
           <br />
           <span className="font-bold">
-            Micro{" "}
             <span title="Video Blogging" className="cursor-help">
-              Vlogging
+              Vlog
             </span>{" "}
-            Application Template
           </span>
+          Application Template
         </p>
         <span className="text-base text-center flex flex-row gap-8">
           <Link
