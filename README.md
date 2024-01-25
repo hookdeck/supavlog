@@ -14,9 +14,7 @@
 
 ## Demo
 
-TODO
-
-## Deploy to Vercel
+[![SupaVlog Screenshot](docs/supavlog-capture.png)](https://supavlog.com)
 
 TODO
 
@@ -50,6 +48,29 @@ To set up the Hookdeck CLI to connect to Hookdeck and tunnel the events locally:
 
 - Install the [Hookdeck CLI](https://hookdeck.com/docs/cli?ref=github-supavlog)
 - Run `npm run hookdeck-local`
+
+## Running in production
+
+### Supabase
+
+Create a new Supabase project and up the Supabase CLI to use your project:
+
+```
+supabase link --project-ref {YOUR_PROJECT_ID}
+```
+
+Set environmental variables for the Edge Functions:
+
+```
+supabase secrets set NEXT_PUBLIC_SUPABASE_URL={SUPABASE_URL}
+supabase secrets set X_SUPABASE_API_SECRET={SUPABASE_SERVICE_SECRET}
+```
+
+Create the schema by copying the contents of `supabase/schema.sql` and running it in the SQL editor for your Supabase project.
+
+### Vercel
+
+TODO
 
 ## Feedback and issues
 
