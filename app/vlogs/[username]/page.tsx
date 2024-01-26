@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import RecordingsList from "@/components/VlogList";
 import LinkButton from "@/components/LinkButton";
 import { notFound } from "next/navigation";
-import NavSection from "@/components/NavSection";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default async function VlogByUsername({
   params,
@@ -31,7 +31,7 @@ export default async function VlogByUsername({
 
   return (
     <div className="flex-1 flex flex-col w-full gap-10">
-      <NavSection structureOverride={navOverride} />
+      <Breadcrumb structureOverride={navOverride} />
       <div className="flex-1 flex flex-col w-full items-center">
         <LinkButton arrow="right" href="/vlogs/new">
           🎥 Record a new Vlog{" "}

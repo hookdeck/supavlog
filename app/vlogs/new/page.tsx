@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import RecordVlog from "@/components/RecordVlog";
 import { getClient } from "@/utils/stream/server";
-import NavSection from "@/components/NavSection";
+import Breadcrumb from "@/components/Breadcrumb";
 
 const serverClient = getClient();
 
@@ -24,7 +24,7 @@ export default async function RecordNew() {
 
   return (
     <div className="flex-1 flex flex-col w-full justify-center gap-10">
-      <NavSection />
+      <Breadcrumb />
       <div className="flex-1 flex flex-col w-full gap-2 justify-center items-center">
         <h2 className="text-xl">Record a new Vlog</h2>
         <RecordVlog

@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import LinkButton from "./LinkButton";
 import Button from "./Button";
+import Menu, { MenuItem } from "./Menu";
 
 const navStructure: Record<string, string> = {
   "/": "Home",
@@ -8,7 +9,7 @@ const navStructure: Record<string, string> = {
   "/vlogs/new": "Record a new Vlog",
 };
 
-export default function NavSection({
+export default function Breadcrumb({
   structureOverride = {},
 }: {
   structureOverride?: Record<string, string>;
@@ -17,23 +18,21 @@ export default function NavSection({
   const currentUrl = headersList.get("x-path");
   const partParts = currentUrl?.split("/");
 
-  // console.log({ currentUrl });
-  // console.log("structureOverride", structureOverride);
-  let path = "";
   let fullPath = "";
-  const navItems = partParts?.map((part, index) => {
+  const items: MenuItem[] = [];
+  partParts?.forEach((part, index) => {
     fullPath += part && index === 1 ? `${part}` : `/${part}`;
     const partName = structureOverride[fullPath] ?? navStructure[fullPath];
-    // console.log(index, fullPath, path);
     if (index === partParts.length - 1) {
-      return <Button key={`nav-${index}`}>{partName}</Button>;
+      items.push({ text: partName, href: null });
+    } else {
+      items.push({ text: partName, href: fullPath });
     }
-    return (
-      <LinkButton key={`nav-${index}`} arrow="right" href={fullPath}>
-        {partName}
-      </LinkButton>
-    );
   });
 
-  return <div className="w-full flex flex-row gap-4">{navItems}</div>;
+  return (
+    <div className="w-full gap-4">
+      <Menu items={items} />
+    </div>
+  );
 }

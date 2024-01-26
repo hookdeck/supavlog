@@ -5,6 +5,10 @@ import SupabaseLogo from "@/components/logos/SupabaseLogo";
 import Image from "next/image";
 import Link from "next/link";
 
+const Divider = () => {
+  return <span className="border-l rotate-45 h-6 hidden md:block" />;
+};
+
 export default async function Home() {
   return (
     <div className="animate-in flex-1 flex flex-col gap-20 opacity-0 max-w-4xl px-3">
@@ -58,7 +62,7 @@ export default async function Home() {
           alt="Supavlog capture"
           className="rounded-md shadow-xl"
         />
-        <div className="flex gap-8 justify-center items-center">
+        <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
           Built with{" "}
           <a
             href="https://supabase.com/?ref=supavlog"
@@ -67,7 +71,7 @@ export default async function Home() {
           >
             <SupabaseLogo />
           </a>
-          <span className="border-l rotate-45 h-6" />
+          <Divider />
           <a
             href="https://getstream.io?ref=supavlog"
             target="_blank"
@@ -75,7 +79,7 @@ export default async function Home() {
           >
             <StreamLogo />
           </a>
-          <span className="border-l rotate-45 h-6" />
+          <Divider />
           <a
             href="https://hookdeck.com?ref=supavlog"
             target="_blank"
@@ -83,7 +87,7 @@ export default async function Home() {
           >
             <HookdeckLogo />
           </a>
-          <span className="border-l rotate-45 h-6" />
+          <Divider />
           <a
             href="https://nextjs.org/?ref=supavlog"
             target="_blank"

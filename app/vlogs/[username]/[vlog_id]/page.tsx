@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { VlogItem } from "@/types/VlogItem";
 import { getClient } from "@/utils/stream/server";
 import RecordAVlogButtonSection from "@/components/RecordAVlogButtonSection";
-import NavSection from "@/components/NavSection";
+import Breadcrumb from "@/components/Breadcrumb";
 import Link from "next/link";
 import DeleteVlogButton from "@/components/DeleteVlogButton";
 
@@ -104,7 +104,7 @@ export default async function SingleVlog({
 
   return (
     <div className="flex-1 flex flex-col w-full gap-10">
-      <NavSection structureOverride={navOverride} />
+      <Breadcrumb structureOverride={navOverride} />
       {!vlog ? (
         notFound()
       ) : (

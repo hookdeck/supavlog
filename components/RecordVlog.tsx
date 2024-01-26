@@ -177,7 +177,7 @@ export const UILayout = ({
   }
 
   return (
-    <StreamTheme className="flex flex-col min-w-[600px]">
+    <StreamTheme className="flex flex-col min-w-[400px]">
       <SpeakerLayout participantsBarPosition="bottom" />
       <div className="str-video__call-controls">
         {/* <RecordCallButton /> */}

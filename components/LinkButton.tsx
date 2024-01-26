@@ -3,12 +3,17 @@ import Button from "./Button";
 
 export interface LinkButtonProps extends LinkProps {
   children: React.ReactNode;
+  className?: string;
   arrow?: "left" | "right";
 }
 
-export default function LinkButton({ children, ...props }: LinkButtonProps) {
+export default function LinkButton({
+  children,
+  className,
+  ...props
+}: LinkButtonProps) {
   return (
-    <Link className="w-fit" {...props}>
+    <Link className={`w-fit ${className}`} {...props}>
       <Button>
         {props.arrow === "left" && (
           <svg
