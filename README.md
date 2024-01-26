@@ -42,6 +42,10 @@ supabase secrets set X_SUPABASE_API_SECRET={SUPABASE_SERVICE_SECRET}
 
 Create the schema by copying the contents of `supabase/schema.sql` and running it in the SQL editor for your Supabase project.
 
+Finally, set the Site URL configuration for Supabase Authentication:
+
+![Supabase Authentication Site URL Configuration](docs/supabase-site-url-config.png)
+
 ### Vercel
 
 To deploy this Next.js application to Vercel you will need to populate the following environment variables:
