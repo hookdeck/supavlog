@@ -89,6 +89,10 @@ Create two connections within Hookdeck, both using the same [Source](https://hoo
 
 ![Hookdeck connections](docs/prod-connection-overview.png)
 
+Set authentication up on the Source, using `HMAC`, `SHA-256`, and `hex`. Enter `X-SIGNATURE` for the **Header Key** and use the Stream API secret as the **Webhook Signing Secret**.
+
+![Source Authentication Config](docs/source-auth-config.png)
+
 Set a filter on each connection.
 
 For `upload-video`:
@@ -115,13 +119,38 @@ For `upload-thumbnail`:
 
 ![Upload video filter](docs/upload-thumbnail-filter.png)
 
-Use the `stream-inbound` Source URL as the Webhook URL in Stream:
-
-![Stream Webhook configuration](docs/stream-webhook-config.png)
-
 For each [Destination](https://hookdeck.com/docs/destinations?ref=github-supavlog) within the Connection, ensure that you configure your Destinations to use Bearer Token auth using your **live** `SUPABASE_ANON_KEY`as the bearer token.
 
 ![Destination auth configuration](docs/destination-auth-config.png)
+
+### Stream
+
+#### Webhooks
+
+Use the Hookdeck `prod-stream-inbound` Source URL as the Webhook URL in Stream:
+
+![Stream Webhook configuration](docs/stream-webhook-config.png)
+
+#### Call types
+
+In the Stream dashboard, under **Call Types**, select the **default** call type.
+
+<!--
+
+TODO: currently a bug in Single Participant layout which means no sound is recorded.
+Once that is resolved, bring this back in.
+
+Update **Recording** -> **Layout Type** to be **Single Participant**
+
+![Stream - set layout type](docs/stream-layout-type.png)
+
+-->
+
+Enable thumbnails:
+
+![Stream - Enable Thumbnails](docs/stream-enable-thumbnails.png)
+
+Click **Submit** to save.
 
 ## Clone and run locally
 
