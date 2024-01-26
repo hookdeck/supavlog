@@ -47,16 +47,21 @@ Create the schema by copying the contents of `supabase/schema.sql` and running i
 To deploy this Next.js application to Vercel you will need to populate the following environment variables:
 
 ```
+# set to false if you do not wish to allow signup
+NEXT_PUBLIC_SIGNUP_ENABLED=true
+
 NEXT_PUBLIC_SUPABASE_URL={your Supabase project URL}
 NEXT_PUBLIC_SUPABASE_ANON_KEY={your Supabase project Anon Key}
+
 NEXT_PUBLIC_STREAM_API_KEY={your Stream project API key}
 STREAM_API_SECRET={your Stream project API secret}
-VIDEO_STORAGE_PLATFORM=supbase
+
+VIDEO_STORAGE_PLATFORM=supabase
 ```
 
 You can either sync with your own repository or use the **Deploy** button below.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhookdeck%2Fsupavlog&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_STREAM_API_KEY,STREAM_API_SECRET,VIDEO_STORAGE_PLATFORM&demo-title=SupaVlog&demo-url=https%3A%2F%2Fsupavlog.com&demo-image=https%3A%2F%2Fgithub.com%2Fhookdeck%2Fsupavlog%2Fraw%2Fmain%2Fdocs%2Fsupavlog-capture.png)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhookdeck%2Fsupavlog&env=NEXT_PUBLIC_SIGNUP_ENABLED,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_STREAM_API_KEY,STREAM_API_SECRET,VIDEO_STORAGE_PLATFORM&demo-title=SupaVlog&demo-url=https%3A%2F%2Fsupavlog.com&demo-image=https%3A%2F%2Fgithub.com%2Fhookdeck%2Fsupavlog%2Fraw%2Fmain%2Fdocs%2Fsupavlog-capture.png)
 
 ### Hookdeck
 
@@ -70,9 +75,9 @@ For `upload-video`:
 
 ```
 {
-	"type": {
-		"$eq": "call.recording_ready"
-	}
+  "type": {
+    "$eq": "call.recording_ready"
+  }
 }
 ```
 
@@ -82,15 +87,15 @@ For `upload-thumbnail`:
 
 ```
 {
-	"type": {
-		"$eq": "call.ended"
-	}
+  "type": {
+    "$eq": "call.ended"
+  }
 }
 ```
 
 ![Upload video filter](docs/upload-thumbnail-filter.png)
 
-Use the Source URL as the Webhook URL in Stream:
+Use the `stream-inbound` Source URL as the Webhook URL in Stream:
 
 ![Stream Webhook configuration](docs/stream-webhook-config.png)
 
