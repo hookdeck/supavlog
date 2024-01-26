@@ -1,3 +1,4 @@
+// @ts-ignore
 import supabase from "./supabaseClient.ts";
 
 const VIDEO_BUCKET = "videos";

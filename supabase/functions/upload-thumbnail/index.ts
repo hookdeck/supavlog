@@ -1,4 +1,6 @@
+// @ts-ignore
 import supabase from "../_shared/supabaseClient.ts";
+// @ts-ignore
 import { uploadToBucket, getCallDetails } from "../_shared/utils.ts";
 
 interface Body {
@@ -78,6 +80,7 @@ const getStreamFilename = (body: Body, userId: string) => {
 
 const WEBHOOK_EVENTS = ["call.ended"];
 
+// @ts-ignore
 Deno.serve(async (req) => {
   const body: Body = await req.json();
 

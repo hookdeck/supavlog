@@ -1,4 +1,6 @@
+// @ts-ignore
 import supabase from "../_shared/supabaseClient.ts";
+// @ts-ignore
 import { getCallDetails, uploadToBucket } from "../_shared/utils.ts";
 
 interface Body {
@@ -74,6 +76,7 @@ const getStreamFilename = (body: Body, userId: string) => {
 
 const WEBHOOK_EVENTS = ["call.recording_ready"];
 
+// @ts-ignore
 Deno.serve(async (req) => {
   const body: Body = await req.json();
 
@@ -117,7 +120,6 @@ Deno.serve(async (req) => {
     const uploadFilePath = `${userId}/${streamFilename}`;
 
     const { publicUrl } = await uploadToBucket({
-      fileType,
       uploadFilePath,
       userId,
       buffer,
