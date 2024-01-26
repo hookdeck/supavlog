@@ -35,6 +35,7 @@ const getRecordingsFromStream = async (userId?: string) => {
         end_time: recording.end_time,
         title: response.call.custom.title,
         by_username: response.call.created_by.name!,
+        by_user_id: response.call.created_by.id,
       }))
     );
   }
@@ -43,12 +44,13 @@ const getRecordingsFromStream = async (userId?: string) => {
 };
 
 const getRecordingsFromSupabase = async (userId?: string) => {
+  // TODO: can we reduce the duplication of creating two Supabase clients?
   const cookieStore = cookies();
   const supabase = createSupabaseClient(cookieStore);
 
   const { data, error } = await (async (userId?: string) => {
     const joinQuery =
-      "id, url, thumbnail_url, created_at, title, profiles(username)";
+      "id, user_id, url, thumbnail_url, created_at, title, profiles(username)";
     if (userId) {
       return await supabase
         .from("videos")
@@ -82,6 +84,7 @@ const getRecordingsFromSupabase = async (userId?: string) => {
       title: video.title,
       //@ts-ignore (TODO: update type definitions to correct reflect result structure)
       by_username: video.profiles.username,
+      by_user_id: video.user_id,
     });
   });
 
@@ -89,6 +92,11 @@ const getRecordingsFromSupabase = async (userId?: string) => {
 };
 
 export default async function RecordingsList({ userId }: { userId?: string }) {
+  // TODO: can we reduce the duplication of creating two Supabase clients?
+  const cookieStore = cookies();
+  const supabase = createSupabaseClient(cookieStore);
+  const currentUser = await supabase.auth.getUser();
+
   let recordings =
     process.env.VIDEO_STORAGE_PLATFORM === "stream"
       ? await getRecordingsFromStream(userId)
@@ -112,60 +120,69 @@ export default async function RecordingsList({ userId }: { userId?: string }) {
 
       {recordings.length > 0 && (
         <ul className="w-full flex flex-wrap justify-center gap-10">
-          {recordings.map((recording, index) => (
-            <li
-              className="rounded-md border-solid border-2 p-4 border-slate-700 w-[350px] hover:border-slate-900 hover:bg-slate-950"
-              key={`recording-${index}`}
-            >
-              <a
-                role="button"
-                href={
-                  recording.url
-                    ? `/vlogs/${recording.by_username}/${recording.id}`
-                    : "#"
-                }
-                title={recording.title}
-                className="group flex flex-col gap-4 items-center text-center bg-cover bg-no-repeat bg-center rounded-md group-hover:0 relative"
-                style={
-                  recording.thumbnail_url
-                    ? {
-                        backgroundImage: `linear-gradient(rgba(79, 78, 79, 0.4), rgba(169, 168, 169, 0.4)), url(${recording.thumbnail_url})`,
-                      }
-                    : {}
-                }
+          {recordings.map((recording, index) => {
+            // Allow the owner of the video to navigate to a video that is still processing
+            // or has potentially failed to process.
+            let recordingUrl = `/vlogs/${recording.by_username}/${recording.id}`;
+            if (
+              recording.url === null &&
+              recording.by_user_id !== currentUser.data.user?.id
+            ) {
+              recordingUrl = "#";
+            }
+            return (
+              <li
+                className="rounded-md border-solid border-2 p-4 border-slate-700 w-[350px] hover:border-slate-900 hover:bg-slate-950"
+                key={`recording-${index}`}
               >
-                <h3
-                  className="text-lg whitespace-pre-wrap h-[50px]"
+                <a
+                  role="button"
+                  href={recordingUrl}
                   title={recording.title}
+                  className="group flex flex-col gap-4 items-center text-center bg-cover bg-no-repeat bg-center rounded-md group-hover:0 relative"
+                  style={
+                    recording.thumbnail_url
+                      ? {
+                          backgroundImage: `linear-gradient(rgba(79, 78, 79, 0.4), rgba(169, 168, 169, 0.4)), url(${recording.thumbnail_url})`,
+                        }
+                      : {}
+                  }
                 >
-                  {recording.title
-                    ? reduceTitle(recording.title)
-                    : "No title available"}
-                </h3>
-                {!recording.url && (
-                  <div className="absolute flex flex-col justify-center h-full z-20">
-                    <span>Video not available or still processing</span>
+                  <h3
+                    className="text-lg whitespace-pre-wrap h-[50px]"
+                    title={recording.title}
+                  >
+                    {recording.title
+                      ? reduceTitle(recording.title)
+                      : "No title available"}
+                  </h3>
+                  {!recording.url && (
+                    <div className="absolute flex flex-col justify-center h-full z-20">
+                      <span>Video not available or still processing</span>
+                    </div>
+                  )}
+                  <div className="flex justify-center relative w-full h-[100px] z-1 group-hover:opacity-50">
+                    <Image
+                      className="absolute z-10"
+                      src={"/icons/video.svg"}
+                      alt={`Pleaseholder video image for ${recording.title}`}
+                      width={100}
+                      height={100}
+                    />
                   </div>
-                )}
-                <div className="flex justify-center relative w-full h-[100px] z-1 group-hover:opacity-50">
-                  <Image
-                    className="absolute z-10"
-                    src={"/icons/video.svg"}
-                    alt={`Pleaseholder video image for ${recording.title}`}
-                    width={100}
-                    height={100}
-                  />
-                </div>
 
-                <div className="h-[50px]">
-                  <h4 className="text-md">{recording.by_username}</h4>
-                  <span className="text-xs flex items-end">
-                    <span>{new Date(recording.end_time).toLocaleString()}</span>
-                  </span>
-                </div>
-              </a>
-            </li>
-          ))}
+                  <div className="h-[50px]">
+                    <h4 className="text-md">{recording.by_username}</h4>
+                    <span className="text-xs flex items-end">
+                      <span>
+                        {new Date(recording.end_time).toLocaleString()}
+                      </span>
+                    </span>
+                  </div>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

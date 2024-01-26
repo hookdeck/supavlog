@@ -6,6 +6,7 @@ import { getClient } from "@/utils/stream/server";
 import RecordAVlogButtonSection from "@/components/RecordAVlogButtonSection";
 import NavSection from "@/components/NavSection";
 import Link from "next/link";
+import DeleteVlogButton from "@/components/DeleteVlogButton";
 
 const serverClient = getClient();
 
@@ -39,6 +40,7 @@ const getVlogFromStream = async (vlogId: string): Promise<VlogItem | null> => {
         end_time: recording.end_time,
         title: callResponse.call.custom.title,
         by_username: callResponse.call.created_by.name!,
+        by_user_id: callResponse.call.created_by.id,
       };
     }
   }
@@ -54,7 +56,7 @@ const getVlogFromSupabase = async (
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
-  const joinQuery = "url, created_at, title, profiles(username)";
+  const joinQuery = "user_id, url, created_at, title, profiles(username)";
   const { data, error } = await supabase
     .from("videos")
     .select(joinQuery)
@@ -70,11 +72,14 @@ const getVlogFromSupabase = async (
     vlog = {
       id: vlogId,
       url: recording.url,
-      filename: recording.url.substring(recording.url.lastIndexOf("/") + 1),
+      filename: recording.url
+        ? recording.url.substring(recording.url.lastIndexOf("/") + 1)
+        : null,
       end_time: recording.created_at,
       title: recording.title,
       // @ts-ignore
       by_username: recording.profiles.username,
+      by_user_id: recording.user_id,
     };
   }
 
@@ -121,10 +126,20 @@ export default async function SingleVlog({
                 )}
               </h3>
             </div>
-            <video controls>
-              <source src={vlog.url} type="video/mp4" />
-            </video>
+            {vlog.url ? (
+              <video controls>
+                <source src={vlog.url} type="video/mp4" />
+              </video>
+            ) : (
+              <div className="flex flex-col justify-center items-center">
+                <p>Video is still processing...</p>
+              </div>
+            )}
+
             <span>{new Date(vlog.end_time).toLocaleString()}</span>
+          </div>
+          <div className="flex-1 flex flex-col w-full justify-center gap-10">
+            <DeleteVlogButton vlogId={vlog.id} username={vlog.by_username} />
           </div>
         </>
       )}

@@ -7,4 +7,5 @@ export type VlogItem = {
   title: string;
   description?: string;
   by_username: string;
+  by_user_id: string;
 };
