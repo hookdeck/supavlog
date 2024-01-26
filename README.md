@@ -18,11 +18,12 @@
 
 ## Running your own SupaVlog
 
-To setup your own instance of SupaVlog you will need:
+To set up your own instance of SupaVlog you will need:
 
 - A [Supabase](https://supabase.com?ref=github-supavlog) account and a new project created
 - A [Stream](https://getstream.io?ref=github-supavlog) account with a project created
 - A [Hookdeck](https://hookdeck.com?ref=github-supavlog) account
+- A [Vercel](https://vercel.com?ref=github-supavlog) account
 
 ### Supabase
 
@@ -103,7 +104,7 @@ For each [Destination](https://hookdeck.com/docs/destinations?ref=github-supavlo
 
 To run locally you will need the [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started) installed.
 
-You can then run the functions using the values defined in `.env.local` by running:
+You can then run the functions using the environment variables defined in `.env.local` by running:
 
 ```
 npm run supabase-functions
