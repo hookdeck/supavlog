@@ -53,6 +53,7 @@ const getVlogFromSupabase = async (
 ): Promise<VlogItem | null> => {
   let vlog: VlogItem | null = null;
 
+  // TODO: can we reduce the duplication of creating two Supabase clients?
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
@@ -102,6 +103,11 @@ export default async function SingleVlog({
   navOverride[`/vlogs/${vlog?.by_username}/${vlog?.id}`] =
     vlog?.title || "No title available";
 
+  // TODO: can we reduce the duplication of creating two Supabase clients?
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+  const currentUser = await supabase.auth.getUser();
+
   return (
     <div className="flex-1 flex flex-col w-full gap-10">
       <Breadcrumb structureOverride={navOverride} />
@@ -138,9 +144,11 @@ export default async function SingleVlog({
 
             <span>{new Date(vlog.end_time).toLocaleString()}</span>
           </div>
-          <div className="flex-1 flex flex-col w-full justify-center gap-10">
-            <DeleteVlogButton vlogId={vlog.id} username={vlog.by_username} />
-          </div>
+          {currentUser.data.user?.id === vlog.by_user_id && (
+            <div className="flex-1 flex flex-col w-full justify-center gap-10">
+              <DeleteVlogButton vlogId={vlog.id} username={vlog.by_username} />
+            </div>
+          )}
         </>
       )}
     </div>
