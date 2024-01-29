@@ -7,13 +7,13 @@ import Link from "next/link";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+  : "http://localhost:8080";
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "SupaVlog - Open Source Vlog Application Template",
+  title: "SupaVlog - Vlog Application Starter Kit",
   description:
-    "An Open Source Vlog (Video Blog) Application Template - SupaVlog",
+    "Vlog (Video Blog) Application Starter Kit with Supabase, Stream, Hookdeck, and Next.js - SupaVlog",
 };
 
 export default function RootLayout({
@@ -38,6 +38,22 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={GeistSans.className}>
+      <head>
+        <link
+          rel="shortcut icon"
+          type="image/svg"
+          href={`${defaultUrl}/icons/supavlog.svg`}
+        />
+        <meta property="og:title" content={metadata.title} />
+        <meta property="og:description" content={metadata.description} />
+        <meta
+          property="og:image"
+          content={`${defaultUrl}/images/supavlog-capture.png`}
+        />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="2048" />
+        <meta property="og:image:height" content="1200" />
+      </head>
       <body className="bg-background text-foreground">
         <div className="flex-1 w-full flex flex-col gap-10 items-center min-h-screen">
           <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
