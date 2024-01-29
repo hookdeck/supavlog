@@ -4,6 +4,8 @@
  Built with <a href="https://supabase.com?ref=github-supavlog">Supabase</a>, <a href="https://getstream.io?ref=github-supavlog">Stream</a>, <a href="https://hookdeck.com?ref=github-supavlog">Hookdeck</a>, &amp; <a href="https://nextjs.org?ref=github-supavlog">Next.js</a>.
 </p>
 
+Read the [SupaVlog blog post](https://hookdeck.com/blog/supavlog-vlog-start-kit-supabase-stream-hookdeck-nextjs?ref=github-supavlog) for more details on the application event-driven architecture (systems, components, and component interactions).
+
 ## Features
 
 - Authentication with [Supabase](https://supabase.com?ref=github-supavlog)
