@@ -5,12 +5,15 @@ import { createClient } from "@/utils/supabase/server";
 import AuthButton from "@/components/AuthButton";
 import Link from "next/link";
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:8080";
+let defaultUrl = process.env.NEXT_PUBLIC_WEBSITE_URL;
+if (defaultUrl === undefined) {
+  process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:8080";
+}
 
 export const metadata = {
-  metadataBase: new URL(defaultUrl),
+  metadataBase: new URL(defaultUrl!),
   title: "SupaVlog - Vlog Application Starter Kit",
   description:
     "Vlog (Video Blog) Application Starter Kit with Supabase, Stream, Hookdeck, and Next.js - SupaVlog",
