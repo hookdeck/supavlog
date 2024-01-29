@@ -13,7 +13,7 @@ if (!defaultUrl) {
 }
 
 export const metadata = {
-  metadataBase: new URL(defaultUrl!),
+  metadataBase: new URL(defaultUrl),
   title: "SupaVlog - Vlog Application Starter Kit",
   description:
     "Vlog (Video Blog) Application Starter Kit with Supabase, Stream, Hookdeck, and Next.js - SupaVlog",
