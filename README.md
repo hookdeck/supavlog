@@ -33,7 +33,7 @@ Create a new Supabase project and up the Supabase CLI to use your project:
 supabase link --project-ref {YOUR_PROJECT_ID}
 ```
 
-### Edge Functions
+#### Edge Functions
 
 Set environmental variables for the Edge Functions:
 
@@ -48,17 +48,17 @@ Deploy your Edge Functions:
 supabase functions deploy
 ```
 
-### Database
+#### Database
 
 Create the schema by copying the contents of `supabase/schema.sql` and running it in the SQL editor for your Supabase project.
 
-### Authentication
+#### Authentication
 
 Set the Site URL configuration for Supabase Authentication:
 
 ![Supabase Authentication Site URL Configuration](docs/supabase-site-url-config.png)
 
-### Storage
+#### Storage
 
 Create a **public** storage bucket called `videos`.
 
