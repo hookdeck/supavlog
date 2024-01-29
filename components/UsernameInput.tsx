@@ -13,15 +13,17 @@ enum AllowUsernameStatus {
 }
 
 export default function UsernameInput() {
+  const [username, setUsername] = useState("");
   const [allowUsernameStatus, setAllowUsernameStatus] =
     useState<AllowUsernameStatus>(AllowUsernameStatus.too_short);
 
   const checkAvailability = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const username = event.target.value;
+    const value = event.target.value.trim().replace(/[^a-zA-Z0-9_]+/g, "");
+    setUsername(value);
 
-    if (username.length < 3) {
+    if (value.length < 3) {
       setAllowUsernameStatus(AllowUsernameStatus.too_short);
       return;
     }
@@ -29,7 +31,7 @@ export default function UsernameInput() {
     const result = await supabase
       .from("profiles")
       .select("*")
-      .eq("username", username);
+      .eq("username", value);
 
     if (result.data && result.data.length > 0) {
       setAllowUsernameStatus(AllowUsernameStatus.used);
@@ -53,6 +55,8 @@ export default function UsernameInput() {
           onChange={checkAvailability}
           required
           minLength={3}
+          value={username}
+          maxLength={20}
         />
         <div className="top-3 right-2 absolute">
           {allowUsernameStatus === AllowUsernameStatus.used && (
