@@ -6,8 +6,8 @@ import AuthButton from "@/components/AuthButton";
 import Link from "next/link";
 
 let defaultUrl = process.env.NEXT_PUBLIC_WEBSITE_URL;
-if (defaultUrl === undefined) {
-  process.env.VERCEL_URL
+if (!defaultUrl) {
+  defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:8080";
 }
