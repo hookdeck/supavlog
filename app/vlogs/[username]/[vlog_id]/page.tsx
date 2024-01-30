@@ -1,3 +1,5 @@
+import type { Metadata, ResolvingMetadata } from "next";
+
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
@@ -57,7 +59,8 @@ const getVlogFromSupabase = async (
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
-  const joinQuery = "user_id, url, created_at, title, profiles(username)";
+  const joinQuery =
+    "user_id, url, thumbnail_url, created_at, title, profiles(username)";
   const { data, error } = await supabase
     .from("videos")
     .select(joinQuery)
@@ -73,6 +76,7 @@ const getVlogFromSupabase = async (
     vlog = {
       id: vlogId,
       url: recording.url,
+      thumbnail_url: recording.thumbnail_url,
       filename: recording.url
         ? recording.url.substring(recording.url.lastIndexOf("/") + 1)
         : null,
@@ -87,15 +91,37 @@ const getVlogFromSupabase = async (
   return vlog;
 };
 
-export default async function SingleVlog({
-  params,
-}: {
-  params: { vlog_id: string };
-}) {
+const getVlog = async (vlogId: string): Promise<VlogItem | null> => {
   const vlog =
     process.env.VIDEO_STORAGE_PLATFORM === "stream"
-      ? await getVlogFromStream(params.vlog_id)
-      : await getVlogFromSupabase(params.vlog_id);
+      ? await getVlogFromStream(vlogId)
+      : await getVlogFromSupabase(vlogId);
+
+  return vlog;
+};
+
+type Props = { params: { vlog_id: string } };
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const vlog = await getVlog(params.vlog_id);
+
+  const title = `${vlog?.title} - ${vlog?.by_username} | SupaVlog`;
+
+  return {
+    title,
+    description: vlog?.description ? `${vlog?.description} | SupaVlog` : title,
+    openGraph: {
+      images: vlog?.thumbnail_url,
+      authors: vlog?.by_username,
+    },
+  };
+}
+
+export default async function SingleVlog({ params }: Props) {
+  const vlog = await getVlog(params.vlog_id);
 
   const navOverride: Record<string, string> = {};
   navOverride[`/vlogs/${vlog?.by_username}`] =
