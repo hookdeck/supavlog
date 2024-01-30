@@ -59,7 +59,8 @@ const getVlogFromSupabase = async (
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
-  const joinQuery = "user_id, url, created_at, title, profiles(username)";
+  const joinQuery =
+    "user_id, url, thumbnail_url, created_at, title, profiles(username)";
   const { data, error } = await supabase
     .from("videos")
     .select(joinQuery)
@@ -75,6 +76,7 @@ const getVlogFromSupabase = async (
     vlog = {
       id: vlogId,
       url: recording.url,
+      thumbnail_url: recording.thumbnail_url,
       filename: recording.url
         ? recording.url.substring(recording.url.lastIndexOf("/") + 1)
         : null,
@@ -106,12 +108,14 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const vlog = await getVlog(params.vlog_id);
 
+  const title = `${vlog?.title} - ${vlog?.by_username} | SupaVlog`;
+
   return {
-    title: `${vlog?.title} - ${vlog?.by_username}`,
-    description: vlog?.description,
+    title,
+    description: vlog?.description ? `${vlog?.description} | SupaVlog` : title,
     openGraph: {
       images: vlog?.thumbnail_url,
-      // authors: vlog?.by_username,
+      authors: vlog?.by_username,
     },
   };
 }

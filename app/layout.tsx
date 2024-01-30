@@ -40,18 +40,6 @@ export default async function RootLayout({
           type="image/svg"
           href={`${defaultUrl}/icons/supavlog.svg`}
         />
-        <meta property="og:title" content={metadata.title as string} />
-        <meta
-          property="og:description"
-          content={metadata.description as string}
-        />
-        <meta
-          property="og:image"
-          content={metadata.openGraph?.images as string}
-        />
-        {/* <meta property="og:image:type" content="image/png" />
-        <meta property="og:image:width" content="2048" />
-        <meta property="og:image:height" content="1200" /> */}
       </head>
       <body className="bg-background text-foreground">
         <div className="flex-1 w-full flex flex-col gap-10 items-center min-h-screen">
