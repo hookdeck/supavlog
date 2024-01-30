@@ -1,3 +1,5 @@
+import type { Metadata, ResolvingMetadata } from "next";
+
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
@@ -87,15 +89,35 @@ const getVlogFromSupabase = async (
   return vlog;
 };
 
-export default async function SingleVlog({
-  params,
-}: {
-  params: { vlog_id: string };
-}) {
+const getVlog = async (vlogId: string): Promise<VlogItem | null> => {
   const vlog =
     process.env.VIDEO_STORAGE_PLATFORM === "stream"
-      ? await getVlogFromStream(params.vlog_id)
-      : await getVlogFromSupabase(params.vlog_id);
+      ? await getVlogFromStream(vlogId)
+      : await getVlogFromSupabase(vlogId);
+
+  return vlog;
+};
+
+type Props = { params: { vlog_id: string } };
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const vlog = await getVlog(params.vlog_id);
+
+  return {
+    title: `${vlog?.title} - ${vlog?.by_username}`,
+    description: vlog?.description,
+    openGraph: {
+      images: vlog?.thumbnail_url,
+      // authors: vlog?.by_username,
+    },
+  };
+}
+
+export default async function SingleVlog({ params }: Props) {
+  const vlog = await getVlog(params.vlog_id);
 
   const navOverride: Record<string, string> = {};
   navOverride[`/vlogs/${vlog?.by_username}`] =

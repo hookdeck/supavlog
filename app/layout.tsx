@@ -1,6 +1,7 @@
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { cookies } from "next/headers";
+import type { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import AuthButton from "@/components/AuthButton";
 import Link from "next/link";
@@ -12,32 +13,24 @@ if (!defaultUrl) {
     : "http://localhost:8080";
 }
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "SupaVlog - Vlog Application Starter Kit",
   description:
     "Vlog (Video Blog) Application Starter Kit with Supabase, Stream, Hookdeck, and Next.js - SupaVlog",
+  openGraph: {
+    images: `${defaultUrl}/images/supavlog-capture.png`,
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const cookieStore = cookies();
-
-  const canInitSupabaseClient = () => {
-    // This function is just for the interactive tutorial.
-    // Feel free to remove it once you have Supabase connected.
-    try {
-      createClient(cookieStore);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const isSupabaseConnected = canInitSupabaseClient();
+  const supabase = createClient(cookieStore);
+  const user = await supabase.auth.getUser();
 
   return (
     <html lang="en" className={GeistSans.className}>
@@ -47,15 +40,18 @@ export default function RootLayout({
           type="image/svg"
           href={`${defaultUrl}/icons/supavlog.svg`}
         />
-        <meta property="og:title" content={metadata.title} />
-        <meta property="og:description" content={metadata.description} />
+        <meta property="og:title" content={metadata.title as string} />
+        <meta
+          property="og:description"
+          content={metadata.description as string}
+        />
         <meta
           property="og:image"
-          content={`${defaultUrl}/images/supavlog-capture.png`}
+          content={metadata.openGraph?.images as string}
         />
-        <meta property="og:image:type" content="image/png" />
+        {/* <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="2048" />
-        <meta property="og:image:height" content="1200" />
+        <meta property="og:image:height" content="1200" /> */}
       </head>
       <body className="bg-background text-foreground">
         <div className="flex-1 w-full flex flex-col gap-10 items-center min-h-screen">
@@ -64,7 +60,7 @@ export default function RootLayout({
               <span className="text-2xl">
                 <Link href="/">SupaVlog</Link>
               </span>
-              {isSupabaseConnected && <AuthButton />}
+              {user && <AuthButton />}
             </div>
           </nav>
           <main className="w-full max-w-4xl flex justify-between">
