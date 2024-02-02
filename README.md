@@ -1,4 +1,4 @@
-<h1 align="center">SupaVlog - Open Source Vlog Application Template</h1>
+<h1 align="center">SupaVlog - Vlog Application Starter Kit</h1>
 
 <p align="center">
  Built with <a href="https://supabase.com?ref=github-supavlog">Supabase</a>, <a href="https://getstream.io?ref=github-supavlog">Stream</a>, <a href="https://hookdeck.com?ref=github-supavlog">Hookdeck</a>, &amp; <a href="https://nextjs.org?ref=github-supavlog">Next.js</a>.
