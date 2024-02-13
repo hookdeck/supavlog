@@ -143,7 +143,7 @@ export default async function RecordingsList({ userId }: { userId?: string }) {
                   style={
                     recording.thumbnail_url
                       ? {
-                          backgroundImage: `linear-gradient(rgba(79, 78, 79, 0.4), rgba(169, 168, 169, 0.4)), url(${recording.thumbnail_url})`,
+                          backgroundImage: `url(${recording.thumbnail_url})`,
                         }
                       : {}
                   }
@@ -161,7 +161,7 @@ export default async function RecordingsList({ userId }: { userId?: string }) {
                       <span>Video not available or still processing</span>
                     </div>
                   )}
-                  <div className="flex justify-center relative w-full h-[100px] z-1 group-hover:opacity-50">
+                  <div className="flex justify-center relative w-full h-[100px] z-1 opacity-0 group-hover:opacity-50">
                     <Image
                       className="absolute z-10"
                       src={"/icons/video.svg"}
