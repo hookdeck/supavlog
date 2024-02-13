@@ -14,6 +14,10 @@ Read the [SupaVlog blog post](https://hookdeck.com/blog/supavlog-vlog-start-kit-
 - Stream video storage with Supabase
 - Built with [Next.js](https://nextjs.org?ref=github-supavlog)
 
+### Limitations
+
+- A free Supabase plan has 1GB of storage and a maximum file size of 50MB. Videos > 50MB will fail to upload.
+
 ## Demo
 
 [![SupaVlog Screenshot](docs/supavlog-capture.png)](https://supavlog.com)
