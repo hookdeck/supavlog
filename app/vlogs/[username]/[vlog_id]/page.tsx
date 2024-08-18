@@ -1,6 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
 
-import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import { VlogItem } from "@/types/VlogItem";
@@ -9,6 +8,8 @@ import RecordAVlogButtonSection from "@/components/RecordAVlogButtonSection";
 import Breadcrumb from "@/components/Breadcrumb";
 import Link from "next/link";
 import DeleteVlogButton from "@/components/DeleteVlogButton";
+import VlogTitle from "@/components/VlogTitle";
+import VlogDescription from "@/components/VlogDescription";
 
 const serverClient = getClient();
 
@@ -43,6 +44,7 @@ const getVlogFromStream = async (vlogId: string): Promise<VlogItem | null> => {
         title: callResponse.call.custom.title,
         by_username: callResponse.call.created_by.name!,
         by_user_id: callResponse.call.created_by.id,
+        description: callResponse.call.custom.description,
       };
     }
   }
@@ -56,11 +58,10 @@ const getVlogFromSupabase = async (
   let vlog: VlogItem | null = null;
 
   // TODO: can we reduce the duplication of creating two Supabase clients?
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
 
   const joinQuery =
-    "user_id, url, thumbnail_url, created_at, title, profiles(username)";
+    "user_id, url, description, thumbnail_url, created_at, title, profiles(username)";
   const { data, error } = await supabase
     .from("videos")
     .select(joinQuery)
@@ -77,6 +78,7 @@ const getVlogFromSupabase = async (
       id: vlogId,
       url: recording.url,
       thumbnail_url: recording.thumbnail_url,
+      description: recording.description,
       filename: recording.url
         ? recording.url.substring(recording.url.lastIndexOf("/") + 1)
         : null,
@@ -97,6 +99,7 @@ const getVlog = async (vlogId: string): Promise<VlogItem | null> => {
       ? await getVlogFromStream(vlogId)
       : await getVlogFromSupabase(vlogId);
 
+  console.log({ vlog });
   return vlog;
 };
 
@@ -130,9 +133,10 @@ export default async function SingleVlog({ params }: Props) {
     vlog?.title || "No title available";
 
   // TODO: can we reduce the duplication of creating two Supabase clients?
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const currentUser = await supabase.auth.getUser();
+
+  const allowEdits = currentUser.data.user?.id === vlog?.by_user_id;
 
   return (
     <div className="flex-1 flex flex-col w-full gap-10">
@@ -142,21 +146,24 @@ export default async function SingleVlog({ params }: Props) {
       ) : (
         <>
           <RecordAVlogButtonSection />
-          <div className="flex-1 flex flex-col w-full justify-center gap-10">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl text-center">
-                {vlog.title || "No title available"}
-              </h2>
-              <h3 className="text-lg text-center">
-                By{" "}
-                {vlog.by_username ? (
-                  <Link href={`/vlogs/${vlog.by_username}`}>
-                    {vlog.by_username}
-                  </Link>
-                ) : (
-                  "Unknown user"
-                )}
-              </h3>
+          <div className="flex-1 flex flex-col w-full items-center gap-10">
+            <div className="flex flex-col gap-2 items-center">
+              <VlogTitle vlog={vlog} allowEdits={allowEdits} />
+              <div className="flex flex-row items-center gap-2">
+                <h3 className="text-lg text-center">
+                  By{" "}
+                  {vlog.by_username ? (
+                    <Link href={`/vlogs/${vlog.by_username}`}>
+                      {vlog.by_username}
+                    </Link>
+                  ) : (
+                    "Unknown user"
+                  )}
+                </h3>
+                <span className="text-sm">
+                  {new Date(vlog.end_time).toLocaleString()}
+                </span>
+              </div>
             </div>
             {vlog.url ? (
               <video controls>
@@ -167,14 +174,15 @@ export default async function SingleVlog({ params }: Props) {
                 <p>Video is still processing...</p>
               </div>
             )}
-
-            <span>{new Date(vlog.end_time).toLocaleString()}</span>
           </div>
-          {currentUser.data.user?.id === vlog.by_user_id && (
-            <div className="flex-1 flex flex-col w-full justify-center gap-10">
+          {allowEdits && (
+            <div className="flex-1 flex flex-row w-full justify-center gap-10">
               <DeleteVlogButton vlogId={vlog.id} username={vlog.by_username} />
             </div>
           )}
+          <div className="flex justify-center">
+            <VlogDescription vlog={vlog} allowEdits={allowEdits} />
+          </div>
         </>
       )}
     </div>

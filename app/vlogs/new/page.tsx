@@ -8,8 +8,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 const serverClient = getClient();
 
 export default async function RecordNew() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -1,6 +1,5 @@
 import Image from "next/image";
-import { createClient as createSupabaseClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
 import { VlogItem } from "@/types/VlogItem";
 import { getClient } from "@/utils/stream/server";
 
@@ -45,8 +44,7 @@ const getRecordingsFromStream = async (userId?: string) => {
 
 const getRecordingsFromSupabase = async (userId?: string) => {
   // TODO: can we reduce the duplication of creating two Supabase clients?
-  const cookieStore = cookies();
-  const supabase = createSupabaseClient(cookieStore);
+  const supabase = createClient();
 
   const { data, error } = await (async (userId?: string) => {
     const joinQuery =
@@ -93,8 +91,7 @@ const getRecordingsFromSupabase = async (userId?: string) => {
 
 export default async function RecordingsList({ userId }: { userId?: string }) {
   // TODO: can we reduce the duplication of creating two Supabase clients?
-  const cookieStore = cookies();
-  const supabase = createSupabaseClient(cookieStore);
+  const supabase = createClient();
   const currentUser = await supabase.auth.getUser();
 
   let recordings =

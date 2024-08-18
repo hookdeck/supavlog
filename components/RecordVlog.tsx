@@ -5,7 +5,6 @@ import {
   Call,
   CallingState,
   LoadingIndicator,
-  RecordCallButton,
   ScreenShareButton,
   SpeakerLayout,
   SpeakingWhileMutedNotification,
@@ -19,6 +18,8 @@ import {
   useCallStateHooks,
   User,
 } from "@stream-io/video-react-sdk";
+
+import { PiRecordBold } from "react-icons/pi";
 
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import Button from "./Button";
@@ -129,8 +130,8 @@ export default function RecordVideo({
 
   if (call) {
     return (
-      <div className="animate-in flex flex-col gap-4 min-h-[400px]">
-        <h2>{title.trim()}</h2>
+      <div className="animate-in flex flex-col gap-4 w-full min-h-[400px]">
+        <h2 className="text-center">{title.trim()}</h2>
         <StreamVideo client={client}>
           <StreamCall call={call}>
             <UILayout onRecordingStopping={handleRecordingStopping} />
@@ -177,7 +178,7 @@ export const UILayout = ({
   }
 
   return (
-    <StreamTheme className="flex flex-col min-w-[400px]">
+    <StreamTheme className="flex flex-col w-full">
       <SpeakerLayout participantsBarPosition="bottom" />
       <div className="str-video__call-controls">
         {/* <RecordCallButton /> */}
@@ -278,7 +279,12 @@ export const CustomRecordCallButton = ({
             title="Record call"
             onClick={toggleRecording}
           >
-            {isCallRecordingInProgress ? <span>🔴</span> : <span>⚪</span>}
+            <PiRecordBold
+              size={22}
+              className={`${
+                isCallRecordingInProgress ? "text-red-600" : "text-white"
+              }`}
+            />
           </Button>
           <div className="str-video__composite-button__caption">
             {isCallRecordingInProgress ? <span>Stop</span> : <span>Start</span>}

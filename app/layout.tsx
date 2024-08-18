@@ -1,10 +1,10 @@
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
-import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
 import AuthButton from "@/components/AuthButton";
 import Link from "next/link";
+import Image from "next/image";
 
 let defaultUrl = process.env.NEXT_PUBLIC_WEBSITE_URL;
 if (!defaultUrl) {
@@ -28,8 +28,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const user = await supabase.auth.getUser();
 
   return (
@@ -46,7 +45,16 @@ export default async function RootLayout({
           <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
             <div className="w-full max-w-4xl flex justify-between items-center p-3 text-sm">
               <span className="text-2xl">
-                <Link href="/">SupaVlog</Link>
+                <Link className="flex flex-row gap-1 items-center" href="/">
+                  <Image
+                    src="/icons/video.svg"
+                    width={24}
+                    height={24}
+                    alt="Video icon"
+                    className="dark:invert"
+                  />
+                  SupaVlog
+                </Link>
               </span>
               {user && <AuthButton />}
             </div>

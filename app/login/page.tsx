@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import LinkButton from "@/components/LinkButton";
@@ -13,8 +12,7 @@ export default function Login({
 
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = createClient();
 
     const { error } = await supabase.auth.signInWithPassword({
       email,

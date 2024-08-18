@@ -3,8 +3,7 @@ import LinkButton from "./LinkButton";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function RecordAVlogButtonSection() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
