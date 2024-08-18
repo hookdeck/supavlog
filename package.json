@@ -9,7 +9,7 @@
     "hookdeck-local": "hookdeck listen 54321"
   },
   "dependencies": {
-    "@stream-io/node-sdk": "^0.1.9",
+    "@stream-io/node-sdk": "^0.3.0",
     "@stream-io/video-react-sdk": "^0.4.20",
     "@supabase/ssr": "^0.4.0",
     "@supabase/supabase-js": "latest",
