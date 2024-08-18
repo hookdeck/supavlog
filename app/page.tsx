@@ -34,7 +34,7 @@ export default async function Home() {
               width={24}
               height={24}
               alt="Video icon"
-              className="invert"
+              className="dark:invert"
             />
             Watch the Vlogs
           </Link>

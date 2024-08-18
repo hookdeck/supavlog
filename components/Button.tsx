@@ -1,10 +1,13 @@
-type ButtonProps =
-  | React.ButtonHTMLAttributes<HTMLButtonElement>
-  | {
-      type?: "primary";
-      children: React.ReactNode;
-      className?: string;
-    };
+import { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+
+type ButtonProps = DetailedHTMLProps<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+> & {
+  type?: "primary";
+  children: React.ReactNode;
+  className?: string;
+};
 
 export default function Button({
   children,
@@ -18,7 +21,9 @@ export default function Button({
         type === "primary"
           ? "bg-blue-700"
           : "bg-btn-background hover:bg-btn-background-hover"
-      } flex items-center group text-sm w-fit ${className}`}
+      } flex items-center group text-sm w-fit ${
+        props.disabled && "bg-red-600"
+      } ${className}`}
       {...props}
     >
       {children}
