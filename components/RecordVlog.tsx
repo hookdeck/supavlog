@@ -24,6 +24,7 @@ import { PiRecordBold } from "react-icons/pi";
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import Button from "./Button";
 import { createClient } from "@/utils/supabase/client";
+import Config from "@/utils/config";
 
 export default function RecordVideo({
   userId,
@@ -168,6 +169,47 @@ export const UILayout = ({
 }) => {
   const { useCallCallingState } = useCallStateHooks();
   const callingState: CallingState = useCallCallingState();
+  const [timeLeft, setTimeLeft] = useState<number>(Config.VIDEO_MAX_LENGTH);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const call = useCall();
+
+  useEffect(() => {
+    if (timerRunning === false) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timerRunning]);
+
+  useEffect(() => {
+    if (call) {
+      const handler = async () => {
+        console.log("in handler");
+        setTimerRunning(true);
+      };
+      call.on("call.recording_started", handler);
+      return () => {
+        call.off("call.recording_started", handler);
+      };
+    }
+  }, [call]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      setTimerRunning(false);
+      const stopCall = async () => {
+        await onRecordingStopping();
+        await call
+          ?.stopRecording()
+          .catch((e) => console.error(`Failed to stop`, e));
+      };
+      stopCall();
+    }
+  }, [timeLeft]);
+
   if (
     callingState !== CallingState.JOINED &&
     callingState !== CallingState.LEFT
@@ -178,8 +220,12 @@ export const UILayout = ({
   }
 
   return (
-    <StreamTheme className="flex flex-col w-full">
+    <StreamTheme className="flex flex-col w-full relative">
       <SpeakerLayout participantsBarPosition="bottom" />
+      <div className="text-center text-sm">
+        Video time remaining: {timeLeft} second
+        {timeLeft > 0 && "s"}
+      </div>
       <div className="str-video__call-controls">
         {/* <RecordCallButton /> */}
         <CustomRecordCallButton
