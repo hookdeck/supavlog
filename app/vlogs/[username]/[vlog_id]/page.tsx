@@ -99,7 +99,6 @@ const getVlog = async (vlogId: string): Promise<VlogItem | null> => {
       ? await getVlogFromStream(vlogId)
       : await getVlogFromSupabase(vlogId);
 
-  console.log({ vlog });
   return vlog;
 };
 
